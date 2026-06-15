@@ -47,56 +47,54 @@ const Player = (() => {
     _current = channel;
     _setState('BUFFERING');
 
-    // Stop previous safely
-    _safeStop();
-
-    try {
-      webapis.avplay.open(channel.url);
-
-      // Display: full screen with proper aspect
-      webapis.avplay.setDisplayRect(0, 0, 1920, 1080);
-      webapis.avplay.setDisplayMethod('PLAYER_DISPLAY_MODE_FULL_SCREEN');
-      webapis.avplay.setDisplayRotation('PLAYER_DISPLAY_ROTATION_NONE');
-
-      // Performance: set stream properties BEFORE prepare()
-      try {
-        webapis.avplay.setStreamingProperty('PREBUFFER_MODE', _getStreamProperties(channel.url));
-      } catch(e) {}
-
-      // Adaptive Bitrate — let AVPlay choose best quality
-      try {
-        webapis.avplay.setStreamingProperty('ADAPTIVE_INFO', JSON.stringify({
-          startBitrate: 'HIGHEST',
-          adaptiveResolution: true,
-        }));
-      } catch(e) {}
-
-      webapis.avplay.setListener({
-        onbufferingstart:    () => _onBufferingStart(),
-        onbufferingcomplete: () => _onBufferingComplete(),
-        oncurrentplaytime:   (t) => _onPlayTime(t),
-        onevent:             (type, data) => _onEvent(type, data),
-        onerror:             (err) => _onError(err),
-        ondrmevent:          () => {},
-      });
-
-      // Async prepare for non-blocking UI
-      webapis.avplay.prepareAsync(
-        () => {
-          // Success: start playback
-          try { webapis.avplay.play(); } catch(e) { _onError(e); }
-        },
-        (err) => _onError(err)
-      );
-
-    } catch(e) {
-      console.error('AVPlay open error', e);
-      _onError('OPEN_FAILED');
-    }
-
     _showOverlay(true);
     _scheduleHideOverlay();
     _updateOverlayInfo();
+
+    // Pequeño retardo para asegurar que el DOM (view-player) ya es visible (display:block)
+    setTimeout(() => {
+      _safeStop();
+
+      try {
+        let playUrl = channel.url;
+        // Limpiar parámetros tipo pipe (|User-Agent=...) que rompen avplay.open()
+        if (playUrl.includes('|')) {
+          playUrl = playUrl.split('|')[0];
+        }
+
+        webapis.avplay.open(playUrl);
+        webapis.avplay.setDisplayRect(0, 0, 1920, 1080);
+        
+        try {
+          webapis.avplay.setStreamingProperty("ADAPTIVE_INFO", "STARTBITRATE=HIGHEST");
+        } catch(e) {}
+
+        webapis.avplay.setListener({
+          onbufferingstart:    () => _onBufferingStart(),
+          onbufferingcomplete: () => _onBufferingComplete(),
+          oncurrentplaytime:   (t) => _onPlayTime(t),
+          onevent:             (type, data) => _onEvent(type, data),
+          onerror:             (err) => _onError(err),
+          ondrmevent:          () => {},
+          onstreamcompleted:   () => {
+            // Auto-reconectar si el stream se corta (típico en IPTV)
+            setTimeout(() => { if (_current) play(_current); }, 1000);
+          }
+        });
+
+        // Async prepare for non-blocking UI
+        webapis.avplay.prepareAsync(
+          () => {
+            try { webapis.avplay.play(); } catch(e) { _onError(e); }
+          },
+          (err) => _onError(err)
+        );
+
+      } catch(e) {
+        console.error('AVPlay open error', e);
+        _onError('OPEN_FAILED');
+      }
+    }, 50);
   }
 
   function _safeStop() {
