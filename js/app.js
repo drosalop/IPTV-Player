@@ -66,6 +66,17 @@ const App = (() => {
   function _initSetupView() {
     _renderSavedLists();
 
+    const handleRemoteList = (list) => {
+      list.id = list.id || _uid();
+      _saveList(list);
+      showToast('Lista remota sincronizada', 'success');
+      _loadList(list);
+    };
+
+    if (typeof Sync !== 'undefined') {
+      Sync.init(handleRemoteList);
+    }
+
     document.querySelectorAll('.tab-btn').forEach((btn, idx) =>
       btn.addEventListener('click', () => {
         _setupZone = 'tabs';
