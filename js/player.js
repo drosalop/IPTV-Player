@@ -16,21 +16,20 @@ const Player = (() => {
 
   const OVERLAY_TIMEOUT = 5000;
 
-  // ── Detección de pantalla (se lee una vez al arrancar) ──
-  // window.innerWidth/Height respetan el viewport CSS (meta viewport width=1920)
-  const SW = window.innerWidth  || 1920;
-  const SH = window.innerHeight || 1080;
-
-  // Intento de detectar Hz via Tizen webapis (falla silenciosamente si no disponible)
-  let _displayHz = 60;
-  try {
-    // Tizen 5+ expone la frecuencia del display
-    const hz = webapis?.avplay?.getParameter?.('DISPLAY_REFRESH_RATE');
-    if (hz && hz > 0) _displayHz = hz;
-  } catch(e) {}
-
-  // Buffer adaptado a Hz: a mayor Hz, necesitamos responder más rápido
-  const _baseBuffer = _displayHz >= 120 ? 2000 : _displayHz >= 100 ? 2500 : 3000;
+  // ── Dimensiones del viewport CSS (lazy — calculado la primera vez que se usa) ──
+  // document.documentElement.clientWidth/Height es el estándar más fiable en Tizen:
+  // - Respeta <meta name="viewport" content="width=1920">
+  // - NO devuelve píxeles físicos del panel (que sería 3840 en 4K)
+  // - Es lo que setDisplayRect() espera (coordenadas CSS, no físicas)
+  let _SW = 0, _SH = 0;
+  function _screenW() {
+    if (!_SW) _SW = document.documentElement.clientWidth  || 1920;
+    return _SW;
+  }
+  function _screenH() {
+    if (!_SH) _SH = document.documentElement.clientHeight || 1080;
+    return _SH;
+  }
 
   // ── INIT ─────────────────────────────────────────────
   function init(onChannelChangeCb) {
@@ -126,11 +125,14 @@ const Player = (() => {
 
   // ── DISPLAY RECT HELPERS ──────────────────────────────
   function _applyFullscreenRect() {
+    const w = _screenW();
+    const h = _screenH();
     const vl = document.getElementById('video-layer');
     if (vl) {
-      vl.style.cssText = `position:absolute;left:0;top:0;width:${SW}px;height:${SH}px;z-index:9999;pointer-events:none;`;
+      // overflow:hidden garantiza que av-player (100%x100%) quede exactamente contenido
+      vl.style.cssText = `position:absolute;left:0;top:0;width:${w}px;height:${h}px;z-index:9999;pointer-events:none;overflow:hidden;`;
     }
-    try { webapis.avplay.setDisplayRect(0, 0, SW, SH); } catch(e) {}
+    try { webapis.avplay.setDisplayRect(0, 0, w, h); } catch(e) {}
   }
 
   function _applyPreviewRect() {
@@ -143,7 +145,7 @@ const Player = (() => {
     const w    = Math.round(r.width);
     const h    = Math.round(r.height);
     if (vl) {
-      vl.style.cssText = `position:absolute;left:${left}px;top:${top}px;width:${w}px;height:${h}px;z-index:50;pointer-events:none;`;
+      vl.style.cssText = `position:absolute;left:${left}px;top:${top}px;width:${w}px;height:${h}px;z-index:50;pointer-events:none;overflow:hidden;`;
     }
     try { webapis.avplay.setDisplayRect(left, top, w, h); } catch(e) {}
   }

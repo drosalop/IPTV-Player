@@ -13,8 +13,8 @@
 <body>
 <div id="app">
 
-  <!-- CAPA GLOBAL PARA VIDEO (Picture in Picture / Pantalla completa) -->
-  <div id="video-layer" style="position: absolute; z-index: 50; pointer-events: none;">
+  <!-- CAPA GLOBAL PARA VIDEO — dimensiones controladas 100% por player.js -->
+  <div id="video-layer" style="position:absolute;left:0;top:0;width:0;height:0;z-index:50;pointer-events:none;overflow:hidden;">
     <object id="av-player" type="application/avplayer"></object>
   </div>
 

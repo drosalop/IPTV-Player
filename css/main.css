@@ -578,14 +578,12 @@ html, body {
    ===================================================== */
 #view-player { background: transparent; }
 
-#player-container {
-  position: absolute;
-  inset: 0;
-}
+/* #av-player debe SIEMPRE rellenar su contenedor (video-layer).
+   El agujero visible = tamaño del contenedor = lo que AVPlay debe mostrar. */
 #av-player {
-  width: 1920px;
-  height: 1080px;
   display: block;
+  width: 100%;
+  height: 100%;
 }
 
 /* Overlay */
