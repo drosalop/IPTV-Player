@@ -399,7 +399,12 @@ const Player = (() => {
   function _fmt(d) { return d?.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) || ''; }
 
   // ── UTILS ────────────────────────────────────────────
-  function stop()         { _safeStop(); _current = null; }
+  function stop() { 
+    _safeStop(); 
+    _current = null; 
+    clearTimeout(_osdTimer);
+    clearInterval(_osdPollInterval);
+  }
   function getCurrent()   { return _current; }
   function getState()     { return _state; }
   function _isActive()    { return document.getElementById('view-player')?.classList.contains('active'); }

@@ -756,14 +756,6 @@ const App = (() => {
   }
   function hideLoading() { document.getElementById('loading')?.classList.add('hidden'); }
 
-  function showToast(msg, type = 'info') {
-    const el = document.getElementById('toast');
-    if (!el) return;
-    el.className   = 'toast ' + type;
-    clearTimeout(_toastTimer);
-    _toastTimer = setTimeout(() => el.classList.add('hidden'), 3000);
-  }
-
   function _saveList(list) {
     const lists = Storage.getLists();
     
