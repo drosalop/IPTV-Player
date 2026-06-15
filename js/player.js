@@ -182,8 +182,9 @@ const Player = (() => {
       if (_isActive() && _current) { 
         Favorites.toggle(_current.id); 
         const isFav = Favorites.isFav(_current.id);
-        if (typeof App !== 'undefined' && App.showToast) {
-          App.showToast(isFav ? 'Añadido a favoritos' : 'Eliminado de favoritos', isFav ? 'success' : 'info');
+        if (typeof App !== 'undefined') {
+          if (App.showToast) App.showToast(isFav ? 'Añadido a favoritos' : 'Eliminado de favoritos', isFav ? 'success' : 'info');
+          if (App.renderChannels) App.renderChannels();
         }
         showOSD(); 
         return true; 
