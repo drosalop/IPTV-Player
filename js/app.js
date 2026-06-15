@@ -488,6 +488,7 @@ const App = (() => {
       }
       return true;
     });
+
     KeyHandler.on('BACK', () => {
       if (_isView('channels')) {
         if (Search.isOpen()) { Search.close(); return true; }

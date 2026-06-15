@@ -53,7 +53,7 @@ const KeyHandler = (() => {
         _okLongPressed = false;
         _okTimeout = setTimeout(() => {
           _okLongPressed = true;
-          _dispatch(KEYS.LONG_OK, { preventDefault: () => {} });
+          _dispatch(KEYS.LONG_OK, { preventDefault: () => {}, stopPropagation: () => {} });
         }, 600); // 600ms para pulsación larga
       }
       // NOTA: Tizen SÍ necesita que no hagamos preventDefault siempre en keydown, 

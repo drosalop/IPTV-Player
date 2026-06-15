@@ -178,19 +178,6 @@ const Player = (() => {
       if (_isActive()) { _handleSeek('right'); return true; }
     });
 
-    KeyHandler.on('LONG_OK',()=> { 
-      if (_isActive() && _current) { 
-        Favorites.toggle(_current.id); 
-        const isFav = Favorites.isFav(_current.id);
-        if (typeof App !== 'undefined') {
-          if (App.showToast) App.showToast(isFav ? 'Añadido a favoritos' : 'Eliminado de favoritos', isFav ? 'success' : 'info');
-          if (App.refreshUI) App.refreshUI();
-        }
-        showOSD(); 
-        return true; 
-      } 
-    });
-
     KeyHandler.on('BACK', () => {
       if (_isActive()) {
         // Volver a la lista de canales y parar el video
