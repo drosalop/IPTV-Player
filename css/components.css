@@ -1,0 +1,55 @@
+/* components.css — additional micro-animations */
+
+/* Channel card number badge */
+.ch-badge {
+  position: absolute;
+  top: 6px; left: 10px;
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+/* Favorite star animation */
+@keyframes starPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.6); }
+  100% { transform: scale(1); }
+}
+.fav-pop { animation: starPop 0.3s ease; }
+
+/* Group item icon */
+.group-icon { font-size: 18px; }
+
+/* Scrollable channel grid smooth scroll */
+.channel-grid { scroll-behavior: smooth; }
+
+/* EPG now-playing highlight */
+.epg-prog.now-prog .epg-prog-title { color: var(--green); }
+
+/* Skeleton loading shimmer */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-hover) 50%, var(--bg-card) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 8px;
+}
+
+/* Volume/Error overlay */
+.error-overlay {
+  position: fixed; inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.8);
+  gap: 20px;
+  z-index: 200;
+}
+.error-overlay.hidden { display: none; }
+.error-icon { font-size: 72px; }
+.error-msg { font-size: 26px; color: var(--accent2); font-weight: 600; }
+.error-sub  { font-size: 18px; color: var(--text-sec); }

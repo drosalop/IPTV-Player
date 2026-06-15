@@ -1,0 +1,14 @@
+# Tizen Studio build output
+.tproject
+.project
+.settings/
+*.wgt
+*.wgt.sign
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+*.swp
