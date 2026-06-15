@@ -41,14 +41,33 @@ const KeyHandler = (() => {
 
   function _handleKey(e) {
     const code = e.keyCode;
-    e.preventDefault();
-    e.stopPropagation();
+    let consumed = false;
 
     // Dispatch to registered listeners (most recently added first)
     const handlers = _listeners[code] || [];
     for (let i = handlers.length - 1; i >= 0; i--) {
       const result = handlers[i](e);
-      if (result === true) break; // consumed
+      if (result === true) {
+        consumed = true;
+        break;
+      }
+    }
+
+    // Only prevent default if a handler explicitly consumed the event,
+    // OR if we are not focused on an input and the key is a UI navigation key
+    // (to prevent unwanted scrolling or browser back behavior)
+    if (consumed) {
+      e.preventDefault();
+      e.stopPropagation();
+    } else {
+      const activeTag = document.activeElement ? document.activeElement.tagName : '';
+      const isInput = activeTag === 'INPUT' || activeTag === 'TEXTAREA';
+      const isNavKey = [37, 38, 39, 40, 13, 10009, 88].includes(code);
+      
+      if (!isInput && isNavKey) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
     }
   }
 
