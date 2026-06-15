@@ -43,27 +43,48 @@ const Player = (() => {
   }
 
   // ── PLAY ─────────────────────────────────────────────
-  function play(channel) {
+  function play(channel, isPreview = false) {
+    if (_current && _current.id === channel.id && (_state === 'PLAYING' || _state === 'BUFFERING')) {
+      // Ya estamos reproduciendo (o cargando) este canal en preview, solo ampliamos la pantalla sin cortes
+      if (!isPreview) {
+        webapis.avplay.setDisplayRect(0, 0, 1920, 1080);
+        _showOverlay(true);
+        _scheduleHideOverlay();
+        _updateOverlayInfo();
+      }
+      return;
+    }
+
     _current = channel;
     _setState('BUFFERING');
 
-    _showOverlay(true);
-    _scheduleHideOverlay();
-    _updateOverlayInfo();
+    if (!isPreview) {
+      _showOverlay(true);
+      _scheduleHideOverlay();
+      _updateOverlayInfo();
+    }
 
-    // Pequeño retardo para asegurar que el DOM (view-player) ya es visible (display:block)
+    // Pequeño retardo para asegurar que el DOM ya es visible
     setTimeout(() => {
       _safeStop();
 
       try {
         let playUrl = channel.url;
-        // Limpiar parámetros tipo pipe (|User-Agent=...) que rompen avplay.open()
         if (playUrl.includes('|')) {
           playUrl = playUrl.split('|')[0];
         }
 
         webapis.avplay.open(playUrl);
-        webapis.avplay.setDisplayRect(0, 0, 1920, 1080);
+
+        if (isPreview) {
+          const box = document.getElementById('preview-box');
+          if (box) {
+            const r = box.getBoundingClientRect();
+            webapis.avplay.setDisplayRect(Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height));
+          }
+        } else {
+          webapis.avplay.setDisplayRect(0, 0, 1920, 1080);
+        }
         
         try {
           webapis.avplay.setStreamingProperty("ADAPTIVE_INFO", "STARTBITRATE=HIGHEST");
@@ -197,7 +218,11 @@ const Player = (() => {
     });
 
     KeyHandler.on('BACK', () => {
-      if (_isActive()) { App.showView('channels'); return true; }
+      if (_isActive()) { 
+        App.showView('channels'); 
+        setPreviewMode();
+        return true; 
+      }
     });
     KeyHandler.on('GREEN', () => {
       if (_isActive()) { App.showView('epg'); return true; }
@@ -212,6 +237,16 @@ const Player = (() => {
         return true;
       }
     });
+  }
+
+  function setPreviewMode() {
+    const box = document.getElementById('preview-box');
+    if (box && _current) {
+      const r = box.getBoundingClientRect();
+      try {
+        webapis.avplay.setDisplayRect(Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height));
+      } catch(e) {}
+    }
   }
 
   function stop() { _safeStop(); _current = null; }
@@ -233,5 +268,5 @@ const Player = (() => {
     return `${f(s)} – ${f(e)}`;
   }
 
-  return { init, play, stop, toggleOverlay, getCurrent, getState };
+  return { init, play, stop, toggleOverlay, getCurrent, getState, setPreviewMode };
 })();

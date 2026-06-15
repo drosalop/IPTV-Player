@@ -21,12 +21,23 @@ const App = (() => {
     KeyHandler.init();
     Favorites.init();
 
-    const lastId = Storage.getLastList();
-    const lists  = Storage.getLists();
-    const list   = lists.find(l => l.id === lastId) || (lists.length ? lists[0] : null);
+    const lists = Storage.getLists();
 
-    if (list) { _loadList(list); }
-    else      { showView('setup'); _initSetupView(); }
+    if (lists.length > 0) {
+      showView('setup');
+      _initSetupView();
+      // Ir a la pestaña de "Guardadas"
+      const tabIdx = Array.from(document.querySelectorAll('.tab-btn')).findIndex(b => b.dataset.tab === 'saved');
+      if (tabIdx >= 0) {
+        _setupTabIdx = tabIdx;
+        _switchTab('saved');
+        _setupZone = 'content'; // Enfocar la primera lista guardada
+        _updateSetupFocus();
+      }
+    } else {
+      showView('setup');
+      _initSetupView();
+    }
   }
 
   // ── VIEWS ─────────────────────────────────────────────
@@ -320,6 +331,11 @@ const App = (() => {
 
     KeyHandler.on('ENTER', () => {
       if (!_isView('channels')) return;
+      const searchBtn = document.getElementById('btn-open-search');
+      if (searchBtn && searchBtn.classList.contains('focused')) {
+        Search.open();
+        return true;
+      }
       if (_focusZone === 'channels') {
         const ch = VirtualList.getCurrentItem();
         if (ch) _playChannel(ch);
@@ -328,9 +344,13 @@ const App = (() => {
       if (_focusZone === 'groups') { _selectGroup(_groups[_groupIdx]); return true; }
     });
 
-    KeyHandler.on('YELLOW', () => { if (_isView('channels')) { _toggleFav(); return true; } });
-    KeyHandler.on('RED',    () => { if (_isView('channels')) { Search.open(); return true; } });
-    KeyHandler.on('GREEN',  () => { if (_isView('channels')) { showView('epg'); return true; } });
+    KeyHandler.on('LONG_OK', () => {
+      if (_isView('channels') && _focusZone === 'channels') {
+        const ch = VirtualList.getCurrentItem();
+        if (ch) { Favorites.toggle(ch); renderChannels(); }
+      }
+      return true;
+    });
     KeyHandler.on('BACK',   () => {
       if (_isView('channels')) {
         if (Search.isOpen()) { Search.close(); return true; }
@@ -401,15 +421,35 @@ const App = (() => {
 
   function _moveActive(dir) {
     if (_focusZone === 'groups') {
-      const els = document.querySelectorAll('.group-item');
-      els[_groupIdx]?.classList.remove('focused');
-      _groupIdx = Math.max(0, Math.min(_groups.length - 1, _groupIdx + (dir === 'up' ? -1 : 1)));
-      els[_groupIdx]?.classList.add('focused');
-      els[_groupIdx]?.scrollIntoView({ block: 'nearest' });
+      const items = document.querySelectorAll('.group-item');
+      if (!items.length) return;
+      let curr = Array.from(items).findIndex(e => e.classList.contains('focused'));
+      if (curr === -1) curr = 0;
+      const next = KeyHandler.navigate(items, curr, dir);
+      KeyHandler.setFocus(items[next]);
     } else {
-      VirtualList.move(dir);
-      const ch = VirtualList.getCurrentItem();
-      if (ch) _previewChannel(ch);
+      const searchBtn = document.getElementById('btn-open-search');
+      if (searchBtn && searchBtn.classList.contains('focused')) {
+        if (dir === 'down') {
+          VirtualList.setFocused(0);
+          KeyHandler.setFocus(document.querySelector('.channel-card.focused'));
+        } else if (dir === 'left') {
+          _setFocusZone('groups');
+        }
+        return;
+      }
+
+      const curIdx = VirtualList.getFocused();
+      if (dir === 'up' && curIdx < 3) {
+        // Mover el foco al botón de buscar
+        KeyHandler.setFocus(searchBtn);
+        // Ocultar preview de epg actual
+        _setText('preview-name', 'Buscar Canales');
+        _setText('preview-epg', '');
+      } else {
+        VirtualList.move(dir);
+        KeyHandler.setFocus(document.querySelector('.channel-card.focused'));
+      }
     }
   }
 
@@ -421,18 +461,26 @@ const App = (() => {
     });
   }
 
+  let _previewTimer = null;
   function _previewChannel(ch) {
-    const logo = document.getElementById('preview-logo');
+    // Actualización rápida del nombre para feedback instantáneo
     const name = document.getElementById('preview-name');
-    const epg  = document.getElementById('preview-epg');
-    if (logo) logo.src = ch.logo || '';
     if (name) name.textContent = ch.name;
-    if (epg) {
-      const now = EPG.getNow(ch.epgId);
-      epg.textContent = now
-        ? `${now.title}\n${_fmt(now.start)} – ${_fmt(now.end)}`
-        : 'Sin datos EPG';
-    }
+
+    clearTimeout(_previewTimer);
+    _previewTimer = setTimeout(() => {
+      const logo = document.getElementById('preview-logo');
+      const epg  = document.getElementById('preview-epg');
+      if (logo) logo.src = ch.logo || '';
+      if (epg) {
+        const now = EPG.getNow(ch.epgId);
+        epg.textContent = now
+          ? `${now.title}\n${_fmt(now.start)} – ${_fmt(now.end)}`
+          : 'Sin datos EPG';
+      }
+      // Reproducir preview en ventana pequeña (modo preview)
+      Player.play(ch, true);
+    }, 500); // 500ms de debounce para scroll ultra rápido
   }
 
   function _toggleFav() {
@@ -446,8 +494,9 @@ const App = (() => {
   // ── PLAYER ───────────────────────────────────────────
   function _playChannel(ch) {
     if (!ch) return;
-    Player.play(ch);
+    clearTimeout(_previewTimer); // Cancelar preview si pulsó OK rápido
     showView('player');
+    Player.play(ch, false);
   }
 
   function _changeChannelRelative(dir) {

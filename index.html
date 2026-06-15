@@ -13,6 +13,11 @@
 <body>
 <div id="app">
 
+  <!-- CAPA GLOBAL PARA VIDEO (Picture in Picture / Pantalla completa) -->
+  <div id="video-layer" style="position: absolute; z-index: 50; pointer-events: none;">
+    <object id="av-player" type="application/avplayer"></object>
+  </div>
+
   <!-- ══ SETUP ══ -->
   <div id="view-setup" class="view active">
     <div class="setup-bg"></div>
@@ -97,33 +102,35 @@
         <div class="sidebar-header"><span class="sidebar-logo">▶ IPTV</span></div>
         <ul class="group-list" id="group-list"></ul>
         <div class="sidebar-footer">
-          <button class="sidebar-btn" id="btn-open-search">🔍</button>
           <button class="sidebar-btn" id="btn-open-setup">⚙️</button>
         </div>
       </aside>
 
       <main class="channel-panel">
-        <div class="panel-header">
-          <h2 id="current-group-name">Todos los canales</h2>
-          <span id="channel-count" class="channel-count"></span>
+        <div class="panel-header" style="flex-direction: column; align-items: flex-start; gap: 15px;">
+          <button id="btn-open-search" class="header-search-btn focusable">🔍 Buscar Canal</button>
+          <div style="display: flex; align-items: baseline; gap: 15px;">
+            <h2 id="current-group-name">Todos los canales</h2>
+            <span id="channel-count" class="channel-count"></span>
+          </div>
         </div>
         <!-- VirtualList renders here -->
         <div class="channel-grid" id="channel-grid"></div>
       </main>
 
       <div class="info-panel">
-        <div class="now-playing">
-          <div class="channel-preview">
-            <img id="preview-logo" src="" alt="" class="preview-logo"/>
-            <span id="preview-name" class="preview-name">Selecciona un canal</span>
+        <div class="now-playing" style="display: flex; flex-direction: column; gap: 15px; flex: 1;">
+          <div class="channel-preview" id="preview-box" style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+            <img id="preview-logo" src="" alt="" style="max-width: 60%; max-height: 60%; opacity: 0.3; object-fit: contain;"/>
           </div>
-          <div id="preview-epg" class="preview-epg"></div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <span id="preview-name" class="preview-name">Selecciona un canal</span>
+            <div id="preview-epg" class="preview-epg"></div>
+          </div>
         </div>
         <div class="key-hints">
           <span><span class="key">OK</span> Ver</span>
-          <span><span class="key">🟡</span> Favorito</span>
-          <span><span class="key">🔴</span> Buscar</span>
-          <span><span class="key">🟢</span> Guía EPG</span>
+          <span><span class="key">MANTENER OK</span> Favorito</span>
           <span><span class="key">◀</span> Grupos</span>
         </div>
       </div>
@@ -139,7 +146,7 @@
   <!-- ══ REPRODUCTOR ══ -->
   <div id="view-player" class="view">
     <div id="player-container">
-      <object id="av-player" type="application/avplayer"></object>
+      <!-- El reproductor ahora vive en #video-layer -->
     </div>
     <div id="player-overlay" class="player-overlay hidden">
       <div class="overlay-top">
