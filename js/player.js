@@ -47,6 +47,13 @@ const Player = (() => {
     if (_current && _current.id === channel.id && (_state === 'PLAYING' || _state === 'BUFFERING')) {
       // Ya estamos reproduciendo (o cargando) este canal en preview, solo ampliamos la pantalla sin cortes
       if (!isPreview) {
+        const videoLayer = document.getElementById('video-layer');
+        if (videoLayer) {
+          videoLayer.style.left = '0px';
+          videoLayer.style.top = '0px';
+          videoLayer.style.width = '1920px';
+          videoLayer.style.height = '1080px';
+        }
         webapis.avplay.setDisplayRect(0, 0, 1920, 1080);
         _showOverlay(true);
         _scheduleHideOverlay();
@@ -76,13 +83,32 @@ const Player = (() => {
 
         webapis.avplay.open(playUrl);
 
+        const videoLayer = document.getElementById('video-layer');
+
         if (isPreview) {
           const box = document.getElementById('preview-box');
           if (box) {
             const r = box.getBoundingClientRect();
-            webapis.avplay.setDisplayRect(Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height));
+            const left = Math.round(r.left);
+            const top = Math.round(r.top);
+            const w = Math.round(r.width);
+            const h = Math.round(r.height);
+            
+            if (videoLayer) {
+              videoLayer.style.left = left + 'px';
+              videoLayer.style.top = top + 'px';
+              videoLayer.style.width = w + 'px';
+              videoLayer.style.height = h + 'px';
+            }
+            webapis.avplay.setDisplayRect(left, top, w, h);
           }
         } else {
+          if (videoLayer) {
+            videoLayer.style.left = '0px';
+            videoLayer.style.top = '0px';
+            videoLayer.style.width = '1920px';
+            videoLayer.style.height = '1080px';
+          }
           webapis.avplay.setDisplayRect(0, 0, 1920, 1080);
         }
         
@@ -241,10 +267,23 @@ const Player = (() => {
 
   function setPreviewMode() {
     const box = document.getElementById('preview-box');
+    const videoLayer = document.getElementById('video-layer');
     if (box && _current) {
       const r = box.getBoundingClientRect();
+      const left = Math.round(r.left);
+      const top = Math.round(r.top);
+      const w = Math.round(r.width);
+      const h = Math.round(r.height);
+      
+      if (videoLayer) {
+        videoLayer.style.left = left + 'px';
+        videoLayer.style.top = top + 'px';
+        videoLayer.style.width = w + 'px';
+        videoLayer.style.height = h + 'px';
+      }
+      
       try {
-        webapis.avplay.setDisplayRect(Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height));
+        webapis.avplay.setDisplayRect(left, top, w, h);
       } catch(e) {}
     }
   }

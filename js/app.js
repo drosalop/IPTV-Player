@@ -21,22 +21,37 @@ const App = (() => {
     KeyHandler.init();
     Favorites.init();
 
+    const lastListId = Storage.getLastList();
     const lists = Storage.getLists();
+    const list = lists.find(l => l.id === lastListId);
 
-    if (lists.length > 0) {
-      showView('setup');
-      _initSetupView();
-      // Ir a la pestaña de "Guardadas"
-      const tabIdx = Array.from(document.querySelectorAll('.tab-btn')).findIndex(b => b.dataset.tab === 'saved');
-      if (tabIdx >= 0) {
-        _setupTabIdx = tabIdx;
-        _switchTab('saved');
-        _setupZone = 'content'; // Enfocar la primera lista guardada
-        _updateSetupFocus();
-      }
-    } else {
-      showView('setup');
-      _initSetupView();
+    // Si ya había una lista cargada previamente, la saltamos a la vista principal
+    if (list) {
+      _loadList(list);
+      return;
+    }
+
+    showView('setup');
+    _initSetupView();
+
+    // Por petición del usuario, siempre abrir por defecto la pestaña de Xtream Codes y autorellenar
+    const tabIdx = Array.from(document.querySelectorAll('.tab-btn')).findIndex(b => b.dataset.tab === 'xtream');
+    if (tabIdx >= 0) {
+      _setupTabIdx = tabIdx;
+      _switchTab('xtream');
+      _setupZone = 'content'; // Enfocar el contenido para hacer login rápido
+
+      const elName = document.getElementById('xt-name');
+      const elServer = document.getElementById('xt-server');
+      const elUser = document.getElementById('xt-user');
+      const elPass = document.getElementById('xt-pass');
+      
+      if (elName) elName.value = 'http://cf.futuremyprovt.com';
+      if (elServer) elServer.value = 'http://cf.futuremyprovt.com';
+      if (elUser) elUser.value = 'f7f23dd33459';
+      if (elPass) elPass.value = '604a8e6f2c';
+
+      _updateSetupFocus();
     }
   }
 
@@ -313,10 +328,21 @@ const App = (() => {
 
     Search.init(_channels);
     Player.init(_changeChannelRelative);
+    
     showView('channels');
     _renderGroups();
     renderChannels();
     _setFocusZone('channels');
+
+    // Autocargar último canal si existe
+    const lastChannelId = Storage.getLastChannel();
+    if (lastChannelId) {
+      const ch = _channels.find(c => c.id === lastChannelId);
+      if (ch) {
+        // Reproducir a pantalla completa directamente
+        _playChannel(ch);
+      }
+    }
   }
 
   // ── CHANNELS VIEW ─────────────────────────────────────
@@ -421,12 +447,19 @@ const App = (() => {
 
   function _moveActive(dir) {
     if (_focusZone === 'groups') {
-      const items = document.querySelectorAll('.group-item');
-      if (!items.length) return;
-      let curr = Array.from(items).findIndex(e => e.classList.contains('focused'));
-      if (curr === -1) curr = 0;
-      const next = KeyHandler.navigate(items, curr, dir);
-      KeyHandler.setFocus(items[next]);
+      const els = document.querySelectorAll('.group-item');
+      if (!els.length) return;
+      els[_groupIdx]?.classList.remove('focused');
+      
+      if (dir === 'up') _groupIdx = Math.max(0, _groupIdx - 1);
+      if (dir === 'down') _groupIdx = Math.min(_groups.length - 1, _groupIdx + 1);
+      
+      els[_groupIdx]?.classList.add('focused');
+      els[_groupIdx]?.scrollIntoView({ block: 'nearest' });
+      
+      // Auto-seleccionar categoría con debounce ligero (si el usuario quiere que cargue solo al posarse)
+      // clearTimeout(window._groupTimer);
+      // window._groupTimer = setTimeout(() => { _selectGroup(_groups[_groupIdx]); }, 300);
     } else {
       const searchBtn = document.getElementById('btn-open-search');
       if (searchBtn && searchBtn.classList.contains('focused')) {
@@ -494,6 +527,7 @@ const App = (() => {
   // ── PLAYER ───────────────────────────────────────────
   function _playChannel(ch) {
     if (!ch) return;
+    Storage.setLastChannel(ch.id); // Guardar para el autoarranque
     clearTimeout(_previewTimer); // Cancelar preview si pulsó OK rápido
     showView('player');
     Player.play(ch, false);

@@ -26,6 +26,8 @@ const Storage = (() => {
   const setEpgCache = (url, data) => set('epg_' + btoa(url).slice(0,20), { ts: Date.now(), data });
   const getLastList = ()      => get('last_list', null);
   const setLastList = (id)    => set('last_list', id);
+  const getLastChannel = ()   => get('last_channel', null);
+  const setLastChannel = (id) => set('last_channel', id);
 
-  return { get, set, del, getLists, saveLists, getFavs, saveFavs, getEpgCache, setEpgCache, getLastList, setLastList };
+  return { get, set, del, getLists, saveLists, getFavs, saveFavs, getEpgCache, setEpgCache, getLastList, setLastList, getLastChannel, setLastChannel };
 })();

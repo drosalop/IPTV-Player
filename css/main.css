@@ -484,7 +484,7 @@ html, body {
 /* =====================================================
    PLAYER VIEW
    ===================================================== */
-#view-player { background: #000; }
+#view-player { background: transparent; }
 
 #player-container {
   position: absolute;
