@@ -1,0 +1,159 @@
+# Project type [web_app, test_runner]
+project_type: web_app
+
+# Default profile, Tizen API version
+profile: tizen
+api_version: "10.0"
+
+# Build type [Debug/ Release/ Test]
+build_type: Debug
+
+# Output name for application
+output_name: Main
+
+# Output path for build
+output_path: ""
+
+# Enable size optimization of wgt for web workspace
+opt: false
+
+# Signing profile to be used for Tizen package signing
+# If value is empty: "", active signing profile will be used
+# Else If value is ".", default signing profile will be used
+signing_profile: ""
+
+# list of certs in web project (.trust-anchor)
+trust_anchor: []
+
+# list of files in web project (.html,.css etc) and resources
+files:
+  - .git/COMMIT_EDITMSG
+  - .git/FETCH_HEAD
+  - .git/HEAD
+  - .git/ORIG_HEAD
+  - .git/config
+  - .git/description
+  - .git/hooks/applypatch-msg.sample
+  - .git/hooks/commit-msg.sample
+  - .git/hooks/fsmonitor-watchman.sample
+  - .git/hooks/post-update.sample
+  - .git/hooks/pre-applypatch.sample
+  - .git/hooks/pre-commit.sample
+  - .git/hooks/pre-merge-commit.sample
+  - .git/hooks/pre-push.sample
+  - .git/hooks/pre-rebase.sample
+  - .git/hooks/pre-receive.sample
+  - .git/hooks/prepare-commit-msg.sample
+  - .git/hooks/push-to-checkout.sample
+  - .git/hooks/sendemail-validate.sample
+  - .git/hooks/update.sample
+  - .git/index
+  - .git/info/exclude
+  - .git/logs/HEAD
+  - .git/logs/refs/heads/main
+  - .git/logs/refs/remotes/origin/HEAD
+  - .git/logs/refs/remotes/origin/main
+  - .git/objects/04/1792b6a49aa2d5d94977a3283185ec13eadb69
+  - .git/objects/05/ee087d090dd72fb88604769bba4373af53f1f2
+  - .git/objects/07/c07ab665a453d039cdf8d328124d3613dcc722
+  - .git/objects/09/8920e99924d023a1d989f69ac9fd43f219c5e9
+  - .git/objects/0a/65285a5347542d5742269ad3b9bd4e4cd21d03
+  - .git/objects/0f/0bca6831448c6ee0d7208687163cc60e18f033
+  - .git/objects/11/919c3a96d9b462d42ae08871006b5860d0a393
+  - .git/objects/15/352e6f0b60f46a6e3d166070d67425b8a18f0b
+  - .git/objects/1a/e47796d4ff93dcd77f09f41b803ab8e4ce1c72
+  - .git/objects/22/b62b4c64d82af675425b81828de4bf2052337c
+  - .git/objects/26/c9765e90ba1ba12e9616e025f802f3c314b210
+  - .git/objects/2b/bf8fb27ff787f6dbd268cce61216a9f4563ff1
+  - .git/objects/2f/fcfafdafc62718786f8278a3df6c1e252c6d06
+  - .git/objects/37/0232d9b2d896cf9d119999b125456d05a553f6
+  - .git/objects/38/98c17f26c78ff8d1c86391bc054eba9ebadf7d
+  - .git/objects/3c/694b50c5dddf8fdaca79508599f8f7873f5d73
+  - .git/objects/3f/6401566e8cf562e60f194953f69ba3998a3047
+  - .git/objects/43/c096164a61cc495e1d00afc1ac1eb19c96da32
+  - .git/objects/54/b8b77ca6a88274e9f0a104e7510f4801cbfc4e
+  - .git/objects/54/e4addba30211d034c1348863878fd096e5dff4
+  - .git/objects/55/12e552a52eb501d48c7466b56affad1277ffb0
+  - .git/objects/5e/0ca13edda0dc3a594b5740c38ebc665894c299
+  - .git/objects/6b/23dc6c5bbc8ce80d534fcaf0aab475bad3cfa7
+  - .git/objects/6c/04551b6c251a36ce8cca65d546bf849e4eee4f
+  - .git/objects/7b/74466b4504f0dc48348fff4e251059f821dcaf
+  - .git/objects/7d/3b2073757e7b438bf569b15845171f7dc46987
+  - .git/objects/7f/0228e8b4daff1da785934981152310494eed10
+  - .git/objects/81/f3ca6ef87d6349e4e2f7028fc28196498b50ea
+  - .git/objects/85/05ae83de02e1ef67c93c52459ef8ce7444204f
+  - .git/objects/95/b8ae26a1d617ad8f86e464131da64fdf4eac13
+  - .git/objects/98/11107e9c61b914c365f3a30c31c2655531cf00
+  - .git/objects/98/8e894788272747935fece2f1c9292d5c00b154
+  - .git/objects/99/3e88f396640f881b69f98db7a4d17401ef83ca
+  - .git/objects/9a/4d4f076b1852bd2419f2ccbbf86215c0fcf226
+  - .git/objects/9d/47bc70237e66c6342cad90aa9196d359b62fb7
+  - .git/objects/a1/13fcb4ece65606265418beda73e6c65ff4f6bf
+  - .git/objects/aa/24ebf066331d327c4766150216240312bf9350
+  - .git/objects/b3/f1c30a62d0d4fab428bace17d64286a15a5781
+  - .git/objects/bb/3cfeed187af974059ef97561b90b85b525b3d8
+  - .git/objects/bc/6094f91dd43cb1f308c4e4e5a06f0f772d9953
+  - .git/objects/bd/639f59fad5f0fe05332e677014cbcf8102062e
+  - .git/objects/ca/94d45f7b02a1ede5201f3cdbf3bcfb61aeaa4e
+  - .git/objects/ca/f9621bdd5f704d8e21af38303f14d07ffbbaf0
+  - .git/objects/cc/56dc5466bcbd158646f5dd1f0cb2c7923092cf
+  - .git/objects/d9/fb8e7d7195de37aec80eef317c62d5b46e37dd
+  - .git/objects/dc/6c222d85f2bea6d9ade477dbbdab7e07b29162
+  - .git/objects/e8/4644be0c2fa7bf6567d0b2dc4f58c4ca3d95e1
+  - .git/objects/pack/pack-bdfcffcf2258a190203ab3ab4f46c9c2a6f48df0.idx
+  - .git/objects/pack/pack-bdfcffcf2258a190203ab3ab4f46c9c2a6f48df0.pack
+  - .git/objects/pack/pack-bdfcffcf2258a190203ab3ab4f46c9c2a6f48df0.rev
+  - .git/packed-refs
+  - .git/refs/heads/main
+  - .git/refs/remotes/origin/HEAD
+  - .git/refs/remotes/origin/main
+  - .gitignore
+  - README.md
+  - css/components.css
+  - css/main.css
+  - index.html
+  - js/app.js
+  - js/epg.js
+  - js/favorites.js
+  - js/keyHandler.js
+  - js/lib/peerjs.min.js
+  - js/lib/qrcode.min.js
+  - js/m3u-worker.js
+  - js/player.js
+  - js/playlist.js
+  - js/search.js
+  - js/storage.js
+  - js/sync.js
+  - js/virtual-list.js
+  - web-remote/css/style.css
+  - web-remote/index.html
+  - web-remote/js/remote.js
+
+# list of files to exclude based on the matched patterns
+excludes:
+  - Build/*
+  - Debug/*
+  - Directory.Build.targets
+  - Release/*
+  - Test/*
+  - \.Build/.*
+  - \.buildResult/.*
+  - \.csproj
+  - \.externalToolBuilders/.*
+  - \.gn
+  - \.obj/.*
+  - \.package/.*
+  - \.project
+  - \.rds_delta
+  - \.sdk_delta.info
+  - \.settings/.*
+  - \.sign/.*
+  - \.tizen-ui-builder-tool.xml
+  - \.tproject
+  - \.wgt
+  - tizen_web_project.yaml
+  - webUnitTest/*
+
+# project dependencies
+deps: []
+

@@ -11,7 +11,7 @@ const App = (() => {
   let _groupIdx        = 0;
   let _toastTimer      = null;
   let _keysChannelsBound = false;
-  let _keysSetupBound    = false;
+  let _setupEventsBound  = false;
   let _setupZone         = 'tabs'; // 'tabs' | 'content'
   let _setupTabIdx       = 0;
   let _setupContentIdx   = 0;
@@ -44,6 +44,9 @@ const App = (() => {
   function _getSetupContent() { return Array.from(document.querySelectorAll('#view-setup .tab-content.active .tv-input, #view-setup .tab-content.active .btn-primary, #view-setup .tab-content.active .btn-secondary, #view-setup .tab-content.active .saved-item')); }
 
   function _updateSetupFocus() {
+    if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
+      document.activeElement.blur();
+    }
     document.querySelectorAll('#view-setup .focused').forEach(e => e.classList.remove('focused'));
     if (_setupZone === 'tabs') {
       const t = _getSetupTabs();
@@ -77,6 +80,12 @@ const App = (() => {
       Sync.init(handleRemoteList);
     }
 
+    _setupZone = 'tabs';
+    _updateSetupFocus();
+
+    if (_setupEventsBound) return;
+    _setupEventsBound = true;
+
     document.querySelectorAll('.tab-btn').forEach((btn, idx) =>
       btn.addEventListener('click', () => {
         _setupZone = 'tabs';
@@ -91,17 +100,11 @@ const App = (() => {
     _on('btn-add-xtream',  () => _addXtream());
     _on('btn-test-xtream', () => _testXtream());
 
-    _setupZone = 'tabs';
-    _updateSetupFocus();
-
-    if (_keysSetupBound) return;
-    _keysSetupBound = true;
-
     // D-pad navigation for setup
     KeyHandler.on('RIGHT', () => {
       if (_isView('setup') && _setupZone === 'tabs') {
         _setupTabIdx = Math.min(_getSetupTabs().length - 1, _setupTabIdx + 1);
-        _updateSetupFocus();
+        _getSetupTabs()[_setupTabIdx]?.click();
         return true;
       }
     });
@@ -109,7 +112,7 @@ const App = (() => {
     KeyHandler.on('LEFT', () => {
       if (_isView('setup') && _setupZone === 'tabs') {
         _setupTabIdx = Math.max(0, _setupTabIdx - 1);
-        _updateSetupFocus();
+        _getSetupTabs()[_setupTabIdx]?.click();
         return true;
       }
     });
@@ -117,8 +120,6 @@ const App = (() => {
     KeyHandler.on('DOWN', () => {
       if (!_isView('setup')) return;
       if (_setupZone === 'tabs') {
-        const t = _getSetupTabs();
-        if (t[_setupTabIdx] && !t[_setupTabIdx].classList.contains('active')) t[_setupTabIdx].click();
         _setupZone = 'content';
         _setupContentIdx = 0;
       } else {
