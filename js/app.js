@@ -318,14 +318,14 @@ const App = (() => {
       const item = document.createElement('div');
       item.className = 'saved-item focusable';
       item.innerHTML = `
-        <span class="saved-item-icon">${list.type === 'xtream' ? '🔑' : '📋'}</span>
+        <span class="saved-item-icon material-symbols-rounded">${list.type === 'xtream' ? 'key' : 'list_alt'}</span>
         <div class="saved-item-info">
           <div class="saved-item-name">${list.name}</div>
           <div class="saved-item-type">${list.type === 'xtream' ? 'Xtream · ' + list.server : 'M3U8'}</div>
         </div>
         <div style="display:flex; gap:8px;">
-          <button class="saved-item-edit" data-id="${list.id}">✏️</button>
-          <button class="saved-item-del" data-id="${list.id}">🗑</button>
+          <button class="saved-item-edit" data-id="${list.id}"><span class="material-symbols-rounded" style="font-size: 20px;">edit</span></button>
+          <button class="saved-item-del" data-id="${list.id}"><span class="material-symbols-rounded" style="font-size: 20px;">delete</span></button>
         </div>`;
       
       item.querySelector('.saved-item-edit').addEventListener('click', e => { e.stopPropagation(); _editList(list); });

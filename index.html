@@ -8,6 +8,7 @@
   <script type="text/javascript" src="$WEBAPIS/webapis/webapis.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
   <link rel="stylesheet" href="css/main.css" />
   <link rel="stylesheet" href="css/components.css" />
 </head>
@@ -30,10 +31,10 @@
         </div>
         <div class="setup-card">
           <div class="tab-bar">
-            <button class="tab-btn active" data-tab="m3u">Lista M3U8</button>
-            <button class="tab-btn" data-tab="xtream">Xtream Codes</button>
-            <button class="tab-btn" data-tab="saved">Guardadas</button>
-            <button class="tab-btn" data-tab="sync">📱 Sincronizar Móvil</button>
+            <button class="tab-btn active" data-tab="m3u"><span class="material-symbols-rounded">list_alt</span> Lista M3U8</button>
+            <button class="tab-btn" data-tab="xtream"><span class="material-symbols-rounded">key</span> Xtream Codes</button>
+            <button class="tab-btn" data-tab="saved"><span class="material-symbols-rounded">folder</span> Guardadas</button>
+            <button class="tab-btn" data-tab="sync"><span class="material-symbols-rounded">sync</span> Sincronizar Móvil</button>
           </div>
 
           <!-- M3U8 -->
@@ -140,8 +141,8 @@
               <span style="font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; white-space: nowrap;">IPTV Player</span>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <button class="sidebar-btn" id="btn-open-search" style="font-size: 20px; padding: 8px;">🔍</button>
-              <button class="sidebar-btn" id="btn-open-setup" style="font-size: 20px; padding: 8px;">⚙️</button>
+              <button class="sidebar-btn" id="btn-open-search" style="padding: 8px;"><span class="material-symbols-rounded">search</span></button>
+              <button class="sidebar-btn" id="btn-open-setup" style="padding: 8px;"><span class="material-symbols-rounded">settings</span></button>
             </div>
           </div>
           <ul class="group-list" id="group-list"></ul>
@@ -171,8 +172,8 @@
       <div id="buffer-spinner" class="buffer-spinner hidden">
         <div class="spinner"></div>
       </div>
-      <div id="player-error" class="error-overlay hidden">
-        <div class="error-icon">⚠️</div>
+      <div class="error-overlay hidden" id="player-error">
+        <span class="material-symbols-rounded error-icon">warning</span>
         <div class="error-msg">Canal no operativo</div>
         <div class="error-sub">El servidor no responde o el enlace está inactivo</div>
       </div>
@@ -182,11 +183,11 @@
     <div id="view-epg" class="view">
       <div class="epg-layout">
         <div class="epg-header">
-          <h2 class="epg-title">📅 Guía de Programación</h2>
+          <h2 class="epg-title"><span class="material-symbols-rounded" style="vertical-align: bottom; margin-right: 8px;">calendar_month</span>Guía de Programación</h2>
           <div class="epg-time-nav">
-            <button class="epg-nav-btn" id="epg-prev">◀ -3h</button>
+            <button class="epg-nav-btn" id="epg-prev"><span class="material-symbols-rounded">chevron_left</span> -3h</button>
             <span id="epg-current-time" class="epg-current-time"></span>
-            <button class="epg-nav-btn" id="epg-next">+3h ▶</button>
+            <button class="epg-nav-btn" id="epg-next">+3h <span class="material-symbols-rounded">chevron_right</span></button>
           </div>
         </div>
         <div class="epg-container">

@@ -135,8 +135,8 @@ const Playlist = (() => {
   function getGroups(channels) {
     if (_groupCache) return _groupCache;
     const seen = new Set();
-    const groups = [{ id: '__all__', name: '📺 Todos los canales' },
-                    { id: '__favs__', name: '♥ Favoritos' }];
+    const groups = [{ id: '__all__', name: '<span class="material-symbols-rounded" style="vertical-align:bottom; margin-right:8px">tv</span> Todos los canales' },
+                    { id: '__favs__', name: '<span class="material-symbols-rounded" style="vertical-align:bottom; margin-right:8px">favorite</span> Favoritos' }];
     for (const ch of channels) {
       if (!seen.has(ch.group)) {
         seen.add(ch.group);

@@ -119,7 +119,7 @@ const VirtualList = (() => {
       const now    = _getEpgNow   ? _getEpgNow(ch.epgId) : null;
 
       el.innerHTML =
-        (isFav ? '<span class="fav-badge">♥</span>' : '') +
+        (isFav ? '<span class="fav-badge material-symbols-rounded">favorite</span>' : '') +
         (ch.logo
           ? `<img class="channel-logo" src="${_safeStr(ch.logo)}" loading="lazy" decoding="async" onerror="this.style.display='none'">`
           : '') +
@@ -147,7 +147,7 @@ const VirtualList = (() => {
 
     // Use innerHTML once — fast
     el.innerHTML =
-      (isFav ? '<span class="fav-badge">♥</span>' : '') +
+      (isFav ? '<span class="fav-badge material-symbols-rounded">favorite</span>' : '') +
       (ch.logo
         ? `<img class="channel-logo" src="${_safeStr(ch.logo)}" loading="lazy" decoding="async" onerror="this.style.display='none'">`
         : '') +
