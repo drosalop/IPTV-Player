@@ -30,6 +30,10 @@ const Player = (() => {
 
     App.showView('player');
     showOSD();
+    
+    // Petición EPG instantánea específica para este canal
+    _fetchShortEpg(ch);
+
     const vl = document.getElementById('video-layer');
     if (vl) {
       vl.style.width  = '100%';
@@ -222,6 +226,8 @@ const Player = (() => {
 
   // ── OSD ──────────────────────────────────────────────
   let _osdTimer = null;
+  let _osdPollInterval = null;
+
   function showOSD() {
     if (!_current) return;
     const osd = document.getElementById('player-osd');
@@ -243,30 +249,98 @@ const Player = (() => {
     const name = document.getElementById('osd-name');
     if (name) name.textContent = _current.name || '';
 
-    const nowEl = document.getElementById('osd-now');
-    const nextEl = document.getElementById('osd-next');
-    
-    if (typeof EPG !== 'undefined' && _current.epgId) {
-      const nowP = EPG.getNow(_current.epgId);
-      const nextP = EPG.getNext(_current.epgId);
-      
-      if (nowP) {
-        nowEl.textContent = `Ahora: ${nowP.title} (${_fmt(nowP.start)} - ${_fmt(nowP.end)})`;
-        nextEl.textContent = nextP ? `Después: ${nextP.title} (${_fmt(nextP.start)} - ${_fmt(nextP.end)})` : '';
-      } else {
-        nowEl.textContent = 'Sin información de programación';
-        nextEl.textContent = '';
-      }
-    } else {
-      if (nowEl) nowEl.textContent = 'Sin información de programación';
-      if (nextEl) nextEl.textContent = '';
-    }
+    _updateEpgOSD();
 
     osd.classList.remove('hidden');
     clearTimeout(_osdTimer);
+    clearInterval(_osdPollInterval);
+
+    // Poll EPG in case it is still loading in background
+    _osdPollInterval = setInterval(_updateEpgOSD, 1000);
+
     _osdTimer = setTimeout(() => {
       osd.classList.add('hidden');
+      clearInterval(_osdPollInterval);
     }, 3000);
+  }
+
+  function _updateEpgOSD() {
+    if (!_current) return;
+    const nowEl = document.getElementById('osd-now');
+    const nextEl = document.getElementById('osd-next');
+    
+    let nowP = null;
+    let nextP = null;
+
+    // 1. Try global EPG if available
+    if (typeof EPG !== 'undefined' && _current.epgId) {
+      nowP = EPG.getNow(_current.epgId);
+      if (!nextP) nextP = EPG.getNext(_current.epgId);
+    }
+    
+    // 2. Try short EPG fallback
+    if (!nowP && _current._shortEpgData) {
+      nowP = _current._shortEpgData.nowP;
+      nextP = _current._shortEpgData.nextP;
+    }
+
+    if (nowP) {
+      if (nowEl) nowEl.textContent = `Ahora: ${nowP.title} (${_fmt(nowP.start)} - ${_fmt(nowP.end)})`;
+      if (nextEl) nextEl.textContent = nextP ? `Después: ${nextP.title} (${_fmt(nextP.start)} - ${_fmt(nextP.end)})` : '';
+    } else {
+      if (nowEl) nowEl.textContent = 'Buscando programación...';
+      if (nextEl) nextEl.textContent = '';
+    }
+  }
+
+  async function _fetchShortEpg(ch) {
+    if (!ch || !ch.shortEpgUrl) return;
+    try {
+      const res = await fetch(ch.shortEpgUrl);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data && data.epg_listings && data.epg_listings.length > 0) {
+        const now = Date.now();
+        let nowP = null;
+        let nextP = null;
+
+        for (const item of data.epg_listings) {
+          let startMs, endMs;
+          if (item.start_timestamp && item.stop_timestamp) {
+            startMs = parseInt(item.start_timestamp) * 1000;
+            endMs = parseInt(item.stop_timestamp) * 1000;
+          } else {
+            startMs = new Date(item.start.replace(' ', 'T')).getTime();
+            endMs = new Date(item.end.replace(' ', 'T')).getTime();
+          }
+
+          if (startMs <= now && endMs >= now) {
+            nowP = { title: _b64DecodeUnicode(item.title), start: new Date(startMs), end: new Date(endMs) };
+          } else if (startMs > now && !nextP) {
+            nextP = { title: _b64DecodeUnicode(item.title), start: new Date(startMs), end: new Date(endMs) };
+          }
+        }
+        
+        if (nowP) {
+          ch._shortEpgData = { nowP, nextP };
+          // If this is still the current channel and OSD is visible, update
+          if (_current && _current.id === ch.id) {
+            const osd = document.getElementById('player-osd');
+            if (osd && !osd.classList.contains('hidden')) {
+              _updateEpgOSD();
+            }
+          }
+        }
+      }
+    } catch (e) {}
+  }
+
+  function _b64DecodeUnicode(str) {
+    try {
+      return decodeURIComponent(atob(str).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+    } catch (e) { return atob(str); }
   }
 
   function _fmt(d) { return d?.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) || ''; }

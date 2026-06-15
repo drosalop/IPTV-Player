@@ -44,6 +44,7 @@ const Playlist = (() => {
       epgId:    s.epg_channel_id || s.name,
       url:      `${server}/live/${encodeURIComponent(user)}/${encodeURIComponent(pass)}/${s.stream_id}.m3u8`,
       streamId: s.stream_id,
+      shortEpgUrl: `${server}/player_api.php?username=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}&action=get_short_epg&stream_id=${s.stream_id}`
     }));
 
     if (onProgress) onProgress(100);
