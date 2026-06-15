@@ -388,13 +388,13 @@ const App = (() => {
     if (_keysChannelsBound) return;
     _keysChannelsBound = true;
 
-    KeyHandler.on('LEFT',  () => { if (_isView('channels') && !Player.isFullscreen()) { _setFocusZone('groups');   return true; } });
-    KeyHandler.on('RIGHT', () => { if (_isView('channels') && !Player.isFullscreen() && _focusZone === 'groups') { _setFocusZone('channels'); return true; } });
-    KeyHandler.on('UP',    () => { if (_isView('channels') && !Player.isFullscreen()) { _moveActive('up');   return true; } });
-    KeyHandler.on('DOWN',  () => { if (_isView('channels') && !Player.isFullscreen()) { _moveActive('down'); return true; } });
+    KeyHandler.on('LEFT',  () => { if (_isView('channels')) { _setFocusZone('groups');   return true; } });
+    KeyHandler.on('RIGHT', () => { if (_isView('channels') && _focusZone === 'groups') { _setFocusZone('channels'); return true; } });
+    KeyHandler.on('UP',    () => { if (_isView('channels')) { _moveActive('up');   return true; } });
+    KeyHandler.on('DOWN',  () => { if (_isView('channels')) { _moveActive('down'); return true; } });
 
     KeyHandler.on('ENTER', () => {
-      if (!_isView('channels') || Player.isFullscreen()) return;
+      if (!_isView('channels')) return;
       const searchBtn = document.getElementById('btn-open-search');
       if (searchBtn && searchBtn.classList.contains('focused')) {
         Search.open();
@@ -409,13 +409,13 @@ const App = (() => {
     });
 
     KeyHandler.on('LONG_OK', () => {
-      if (_isView('channels') && !Player.isFullscreen() && _focusZone === 'channels') {
+      if (_isView('channels') && _focusZone === 'channels') {
         const ch = VirtualList.getCurrentItem();
         if (ch) { Favorites.toggle(ch); renderChannels(); }
       }
       return true;
     });
-    KeyHandler.on('BACK',   () => {
+    KeyHandler.on('BACK', () => {
       if (_isView('channels')) {
         if (Search.isOpen()) { Search.close(); return true; }
         try { tizen?.application?.getCurrentApplication()?.exit(); } catch(e) {}
@@ -574,13 +574,13 @@ const App = (() => {
     renderChannels();
   }
 
-  // ── PLAYER (overlay sobre channels, sin cortar el video) ─
+  // ── PLAYER ──────────────────────────────────────
   function _playChannel(ch) {
     if (!ch) return;
     Storage.setLastChannel(ch.id);
     clearTimeout(_previewTimer);
-    // Mantenemos la vista channels activa — el video se superpone encima
-    Player.playFullscreen(ch);
+    showView('player');          // Activa view-player (fondo transparente)
+    Player.play(ch, false);     // Reproduce en pantalla completa
   }
 
   function _changeChannelRelative(dir) {
