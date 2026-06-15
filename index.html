@@ -31,33 +31,13 @@
         </div>
         <div class="setup-card">
           <div class="tab-bar">
-            <button class="tab-btn active" data-tab="m3u"><span class="material-symbols-rounded">list_alt</span> Lista M3U8</button>
-            <button class="tab-btn" data-tab="xtream"><span class="material-symbols-rounded">key</span> Xtream Codes</button>
-            <button class="tab-btn" data-tab="saved"><span class="material-symbols-rounded">folder</span> Guardadas</button>
+            <button class="tab-btn active" data-tab="xtream"><span class="material-symbols-rounded">key</span> Xtream Codes</button>
+            <button class="tab-btn" data-tab="saved"><span class="material-symbols-rounded">folder</span> Listas Guardadas</button>
             <button class="tab-btn" data-tab="sync"><span class="material-symbols-rounded">sync</span> Sincronizar Móvil</button>
           </div>
 
-          <!-- M3U8 -->
-          <div id="tab-content-m3u" class="tab-content active">
-            <h2 class="form-title">Añadir Lista M3U8</h2>
-            <div class="form-group"><label>Nombre</label>
-              <input type="text" id="m3u-name" class="tv-input" placeholder="Mi lista IPTV" />
-            </div>
-            <div class="form-group"><label>URL del fichero M3U8</label>
-              <input type="text" id="m3u-url" class="tv-input" placeholder="http://proveedor.com/lista.m3u8" />
-            </div>
-            <div class="form-group"><label>URL EPG / XMLTV (opcional)</label>
-              <input type="text" id="m3u-epg" class="tv-input" placeholder="http://proveedor.com/epg.xml" />
-            </div>
-            <div class="form-actions">
-              <button class="btn-primary" id="btn-add-m3u">Añadir y Cargar</button>
-              <button class="btn-secondary" id="btn-test-m3u">Probar URL</button>
-            </div>
-            <div id="m3u-status" class="status-msg"></div>
-          </div>
-
           <!-- Xtream -->
-          <div id="tab-content-xtream" class="tab-content">
+          <div id="tab-content-xtream" class="tab-content active">
             <h2 class="form-title">Xtream Codes API</h2>
             <div class="form-group"><label>Nombre</label>
               <input type="text" id="xt-name" class="tv-input" placeholder="Mi IPTV Premium" />

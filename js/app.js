@@ -128,8 +128,6 @@ const App = (() => {
       })
     );
 
-    _on('btn-add-m3u',     () => _addM3U());
-    _on('btn-test-m3u',    () => _testM3U());
     _on('btn-add-xtream',  () => _addXtream());
     _on('btn-test-xtream', () => _testXtream());
 
@@ -204,52 +202,6 @@ const App = (() => {
   }
 
   let _editingListId = null;
-
-  async function _addM3U() {
-    const name = _val('m3u-name') || 'Lista M3U';
-    const url  = _val('m3u-url');
-    const epg  = _val('m3u-epg');
-    if (!url) { _setStatus('m3u-status', 'Introduce una URL', 'error'); return; }
-
-    const list = { id: _editingListId || _uid(), name, type: 'm3u', url, epgUrl: epg };
-    _saveList(list);
-    _editingListId = null;
-    document.getElementById('btn-add-m3u').textContent = 'Añadir y Cargar';
-
-    const steps = [
-      { id: 'connect',   label: 'Conectando al servidor' },
-      { id: 'download',  label: 'Descargando lista M3U' },
-      { id: 'parse',     label: 'Procesando canales' },
-    ];
-    SetupProgress.show('Añadiendo lista M3U', name, steps);
-    try {
-      SetupProgress.step('connect');
-      SetupProgress.step('download');
-      const channels = await Playlist.loadM3U(url, pct => {
-        SetupProgress.progress(Math.round(pct * 0.8)); // 0-80% durante descarga
-        if (pct > 50) SetupProgress.step('parse');
-      });
-      _channels = channels;
-      SetupProgress.progress(100);
-      Storage.setChannelCache(list.id, _channels);
-      await new Promise(r => setTimeout(r, 400)); // breve pausa para ver 100%
-      SetupProgress.hide();
-      await _afterLoad(list);
-    } catch(e) {
-      SetupProgress.hide();
-      _setStatus('m3u-status', '\u2717 ' + e.message, 'error');
-    }
-  }
-
-  async function _testM3U() {
-    const url = _val('m3u-url');
-    if (!url) return;
-    _setStatus('m3u-status', 'Probando...', '');
-    try {
-      const res = await fetch(url, { method: 'HEAD' });
-      _setStatus('m3u-status', res.ok ? '✓ URL accesible' : '✗ HTTP ' + res.status, res.ok ? 'success' : 'error');
-    } catch { _setStatus('m3u-status', '✗ No se puede conectar', 'error'); }
-  }
 
   async function _addXtream() {
     const name   = _val('xt-name') || 'Xtream IPTV';
@@ -337,13 +289,7 @@ const App = (() => {
 
   function _editList(list) {
     _editingListId = list.id;
-    if (list.type === 'm3u') {
-      document.getElementById('m3u-name').value = list.name || '';
-      document.getElementById('m3u-url').value = list.url || '';
-      document.getElementById('m3u-epg').value = list.epgUrl || '';
-      document.getElementById('btn-add-m3u').textContent = 'Guardar y Cargar';
-      _switchTab('m3u');
-    } else if (list.type === 'xtream') {
+    if (list.type === 'xtream') {
       document.getElementById('xt-name').value = list.name || '';
       document.getElementById('xt-server').value = list.server || '';
       document.getElementById('xt-user').value = list.user || '';

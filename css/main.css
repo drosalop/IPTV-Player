@@ -418,10 +418,11 @@ html, body {
   border: 1px solid var(--border);
   border-radius: 10px;
   font-size: 20px;
+  color: var(--text);
   cursor: pointer;
   transition: all 0.15s;
 }
-.sidebar-btn.focused { border-color: var(--accent); background: var(--accent-dim); box-shadow: var(--focus-ring); }
+.sidebar-btn.focused { border-color: var(--accent); background: var(--accent-dim); box-shadow: var(--focus-ring); color: #fff; }
 
 /* Channel panel */
 .channel-panel {
