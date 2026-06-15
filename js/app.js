@@ -287,7 +287,15 @@ const App = (() => {
     // Load EPG in background — don't block channel list
     if (list.epgUrl) {
       showLoading('Cargando guía EPG…');
-      EPG.load(list.epgUrl).then(() => hideLoading());
+      
+      // Extraemos solo los IDs de canales que realmente tenemos cargados
+      const validIds = new Set();
+      _channels.forEach(c => {
+        if (c.epgId) validIds.add(c.epgId);
+        else if (c.name) validIds.add(c.name); // Algunos M3U usan el nombre como ID fallback
+      });
+
+      EPG.load(list.epgUrl, validIds).then(() => hideLoading());
     } else {
       hideLoading();
     }

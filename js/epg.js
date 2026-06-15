@@ -10,7 +10,7 @@ const EPG = (() => {
   const ROW_H  = 72;
 
   // ── LOAD & PARSE XMLTV ──────────────────────────────
-  async function load(url) {
+  async function load(url, validIds) {
     if (!url) return false;
 
     // Check cache (12h)
@@ -24,8 +24,7 @@ const EPG = (() => {
     try {
       const res  = await fetch(url);
       const text = await res.text();
-      const xml  = new DOMParser().parseFromString(text, 'text/xml');
-      _parseXMLTV(xml);
+      await _parseXMLTVString(text, validIds);
       Storage.setEpgCache(url, { programs: _programs, channels: _channels });
       return true;
     } catch (e) {
@@ -34,27 +33,92 @@ const EPG = (() => {
     }
   }
 
-  function _parseXMLTV(xml) {
+  function _unescape(str) {
+    if (!str) return '';
+    return str.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
+              .replace(/&amp;/g, '&')
+              .replace(/&lt;/g, '<')
+              .replace(/&gt;/g, '>')
+              .replace(/&quot;/g, '"')
+              .replace(/&apos;/g, "'")
+              .trim();
+  }
+
+  async function _parseXMLTVString(text, validIds) {
     _programs = {};
     _channels = {};
 
-    xml.querySelectorAll('channel').forEach(ch => {
-      const id   = ch.getAttribute('id');
-      const name = ch.querySelector('display-name')?.textContent || id;
-      const logo = ch.querySelector('icon')?.getAttribute('src') || '';
-      _channels[id] = { name, logo };
-    });
+    let chunkCount = 0;
 
-    xml.querySelectorAll('programme').forEach(prog => {
-      const chId = prog.getAttribute('channel');
-      const start = _parseXMLTVDate(prog.getAttribute('start'));
-      const end   = _parseXMLTVDate(prog.getAttribute('stop'));
-      const title = prog.querySelector('title')?.textContent || '';
-      const desc  = prog.querySelector('desc')?.textContent  || '';
-      const cat   = prog.querySelector('category')?.textContent || '';
-      if (!_programs[chId]) _programs[chId] = [];
-      _programs[chId].push({ start, end, title, desc, cat });
-    });
+    // 1. Extract Channels
+    let chPos = 0;
+    while ((chPos = text.indexOf('<channel ', chPos)) !== -1) {
+      const endCh = text.indexOf('</channel>', chPos);
+      if (endCh === -1) break;
+
+      const chunk = text.substring(chPos, endCh);
+      const idMatch = chunk.match(/id=["']([^"']*)["']/);
+      if (idMatch) {
+        const id = idMatch[1];
+        if (!validIds || validIds.has(id)) {
+          const nameMatch = chunk.match(/<display-name[^>]*>([\s\S]*?)<\/display-name>/);
+          const logoMatch = chunk.match(/<icon[^>]*src=["']([^"']*)["']/);
+          _channels[id] = {
+            name: nameMatch ? _unescape(nameMatch[1]) : id,
+            logo: logoMatch ? logoMatch[1].trim() : ''
+          };
+        }
+      }
+      chPos = endCh + 10;
+      chunkCount++;
+      if (chunkCount % 500 === 0) await new Promise(r => setTimeout(r, 0));
+    }
+
+    // 2. Extract Programmes
+    let prgPos = 0;
+    chunkCount = 0;
+    while ((prgPos = text.indexOf('<programme ', prgPos)) !== -1) {
+      const endPrg = text.indexOf('</programme>', prgPos);
+      if (endPrg === -1) break;
+      
+      const firstLineEnd = text.indexOf('>', prgPos);
+      if (firstLineEnd === -1) break;
+
+      const firstLine = text.substring(prgPos, firstLineEnd);
+      const chIdMatch = firstLine.match(/channel=["']([^"']*)["']/);
+      
+      if (chIdMatch) {
+        const chId = chIdMatch[1];
+        // FILTER: Skip instantly if channel is not in our loaded M3U
+        if (!validIds || validIds.has(chId)) {
+          const startMatch = firstLine.match(/start=["']([^"']*)["']/);
+          const stopMatch  = firstLine.match(/stop=["']([^"']*)["']/);
+          
+          if (startMatch && stopMatch) {
+            const start = _parseXMLTVDate(startMatch[1]);
+            const end   = _parseXMLTVDate(stopMatch[1]);
+            
+            const chunk = text.substring(firstLineEnd + 1, endPrg);
+            const titleMatch = chunk.match(/<title[^>]*>([\s\S]*?)<\/title>/);
+            const descMatch  = chunk.match(/<desc[^>]*>([\s\S]*?)<\/desc>/);
+            const catMatch   = chunk.match(/<category[^>]*>([\s\S]*?)<\/category>/);
+
+            if (!_programs[chId]) _programs[chId] = [];
+            _programs[chId].push({
+              start, end,
+              title: titleMatch ? _unescape(titleMatch[1]) : '',
+              desc: descMatch ? _unescape(descMatch[1]) : '',
+              cat: catMatch ? _unescape(catMatch[1]) : ''
+            });
+          }
+        }
+      }
+      
+      prgPos = endPrg + 12;
+      chunkCount++;
+      // Yield thread every 2000 programs to avoid UI freeze
+      if (chunkCount % 2000 === 0) await new Promise(r => setTimeout(r, 0));
+    }
   }
 
   function _parseXMLTVDate(str) {
