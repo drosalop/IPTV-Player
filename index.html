@@ -1,249 +1,265 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=1920"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920" />
   <title>IPTV Player</title>
   <script type="text/javascript" src="$WEBAPIS/webapis/webapis.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="css/main.css"/>
-  <link rel="stylesheet" href="css/components.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/components.css" />
 </head>
+
 <body>
-<div id="app">
+  <div id="app">
 
-  <!-- CAPA GLOBAL PARA VIDEO — dimensiones controladas 100% por player.js -->
-  <div id="video-layer" style="position:absolute;left:0;top:0;width:0;height:0;z-index:50;pointer-events:none;overflow:hidden;">
-    <object id="av-player" type="application/avplayer"></object>
-  </div>
+    <!-- CAPA GLOBAL PARA VIDEO — dimensiones controladas 100% por player.js -->
+    <div id="video-layer"
+      style="position:absolute;left:0;top:0;width:0;height:0;z-index:50;pointer-events:none;overflow:hidden;">
+      <object id="av-player" type="application/avplayer"></object>
+    </div>
 
-  <!-- ══ SETUP ══ -->
-  <div id="view-setup" class="view active">
-    <div class="setup-bg"></div>
-    <div class="setup-container">
-      <div class="setup-logo">
-        <span class="logo-icon">▶</span>
-        <h1 class="logo-text">IPTV<span class="accent">Player</span></h1>
-      </div>
-      <div class="setup-card">
-        <div class="tab-bar">
-          <button class="tab-btn active" data-tab="m3u">Lista M3U8</button>
-          <button class="tab-btn" data-tab="xtream">Xtream Codes</button>
-          <button class="tab-btn" data-tab="saved">Guardadas</button>
-          <button class="tab-btn" data-tab="sync">📱 Sincronizar Móvil</button>
+    <!-- ══ SETUP ══ -->
+    <div id="view-setup" class="view active">
+      <div class="setup-bg"></div>
+      <div class="setup-container">
+        <div class="setup-logo">
+          <span class="logo-icon">▶</span>
+          <h1 class="logo-text">IPTV<span class="accent">Player</span></h1>
         </div>
-
-        <!-- M3U8 -->
-        <div id="tab-content-m3u" class="tab-content active">
-          <h2 class="form-title">Añadir Lista M3U8</h2>
-          <div class="form-group"><label>Nombre</label>
-            <input type="text" id="m3u-name" class="tv-input" placeholder="Mi lista IPTV"/></div>
-          <div class="form-group"><label>URL del fichero M3U8</label>
-            <input type="text" id="m3u-url" class="tv-input" placeholder="http://proveedor.com/lista.m3u8"/></div>
-          <div class="form-group"><label>URL EPG / XMLTV (opcional)</label>
-            <input type="text" id="m3u-epg" class="tv-input" placeholder="http://proveedor.com/epg.xml"/></div>
-          <div class="form-actions">
-            <button class="btn-primary" id="btn-add-m3u">Añadir y Cargar</button>
-            <button class="btn-secondary" id="btn-test-m3u">Probar URL</button>
+        <div class="setup-card">
+          <div class="tab-bar">
+            <button class="tab-btn active" data-tab="m3u">Lista M3U8</button>
+            <button class="tab-btn" data-tab="xtream">Xtream Codes</button>
+            <button class="tab-btn" data-tab="saved">Guardadas</button>
+            <button class="tab-btn" data-tab="sync">📱 Sincronizar Móvil</button>
           </div>
-          <div id="m3u-status" class="status-msg"></div>
-        </div>
 
-        <!-- Xtream -->
-        <div id="tab-content-xtream" class="tab-content">
-          <h2 class="form-title">Xtream Codes API</h2>
-          <div class="form-group"><label>Nombre</label>
-            <input type="text" id="xt-name" class="tv-input" placeholder="Mi IPTV Premium"/></div>
-          <div class="form-group"><label>URL del servidor</label>
-            <input type="text" id="xt-server" class="tv-input" placeholder="http://servidor.com:8080"/></div>
-          <div class="form-row">
-            <div class="form-group"><label>Usuario</label>
-              <input type="text" id="xt-user" class="tv-input" placeholder="usuario"/></div>
-            <div class="form-group"><label>Contraseña</label>
-              <input type="password" id="xt-pass" class="tv-input" placeholder="contraseña"/></div>
+          <!-- M3U8 -->
+          <div id="tab-content-m3u" class="tab-content active">
+            <h2 class="form-title">Añadir Lista M3U8</h2>
+            <div class="form-group"><label>Nombre</label>
+              <input type="text" id="m3u-name" class="tv-input" placeholder="Mi lista IPTV" />
+            </div>
+            <div class="form-group"><label>URL del fichero M3U8</label>
+              <input type="text" id="m3u-url" class="tv-input" placeholder="http://proveedor.com/lista.m3u8" />
+            </div>
+            <div class="form-group"><label>URL EPG / XMLTV (opcional)</label>
+              <input type="text" id="m3u-epg" class="tv-input" placeholder="http://proveedor.com/epg.xml" />
+            </div>
+            <div class="form-actions">
+              <button class="btn-primary" id="btn-add-m3u">Añadir y Cargar</button>
+              <button class="btn-secondary" id="btn-test-m3u">Probar URL</button>
+            </div>
+            <div id="m3u-status" class="status-msg"></div>
           </div>
-          <div class="form-actions">
-            <button class="btn-primary" id="btn-add-xtream">Añadir y Cargar</button>
-            <button class="btn-secondary" id="btn-test-xtream">Probar Conexión</button>
+
+          <!-- Xtream -->
+          <div id="tab-content-xtream" class="tab-content">
+            <h2 class="form-title">Xtream Codes API</h2>
+            <div class="form-group"><label>Nombre</label>
+              <input type="text" id="xt-name" class="tv-input" placeholder="Mi IPTV Premium" />
+            </div>
+            <div class="form-group"><label>URL del servidor</label>
+              <input type="text" id="xt-server" class="tv-input" placeholder="http://servidor.com:8080" />
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Usuario</label>
+                <input type="text" id="xt-user" class="tv-input" placeholder="usuario" />
+              </div>
+              <div class="form-group"><label>Contraseña</label>
+                <input type="password" id="xt-pass" class="tv-input" placeholder="contraseña" />
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn-primary" id="btn-add-xtream">Añadir y Cargar</button>
+              <button class="btn-secondary" id="btn-test-xtream">Probar Conexión</button>
+            </div>
+            <div id="xt-status" class="status-msg"></div>
           </div>
-          <div id="xt-status" class="status-msg"></div>
-        </div>
 
-        <!-- Saved -->
-        <div id="tab-content-saved" class="tab-content">
-          <h2 class="form-title">Listas Guardadas</h2>
-          <div id="saved-list" class="saved-list"><p class="empty-msg">No hay listas guardadas</p></div>
-        </div>
+          <!-- Saved -->
+          <div id="tab-content-saved" class="tab-content">
+            <h2 class="form-title">Listas Guardadas</h2>
+            <div id="saved-list" class="saved-list">
+              <p class="empty-msg">No hay listas guardadas</p>
+            </div>
+          </div>
 
-        <!-- Sync -->
-        <div id="tab-content-sync" class="tab-content">
-          <h2 class="form-title">Sincronización Remota</h2>
-          <p class="sync-desc" style="color:var(--text-sec); margin-bottom: 20px;">
-            Escanea el código QR o introduce el PIN en la web remota.
-          </p>
-          <div class="sync-panel" style="display: flex; gap: 40px; align-items: center; background: rgba(0,0,0,0.3); padding: 30px; border-radius: 12px;">
-            <div id="qrcode-container" class="qrcode-box" style="background:#fff; padding:15px; border-radius:8px;"></div>
-            <div class="sync-info" style="display: flex; flex-direction: column; gap: 15px;">
-              <span class="sync-label" style="font-size: 1.2rem; color:var(--text-dim)">PIN de tu TV:</span>
-              <span id="sync-code" class="sync-code" style="font-size: 3rem; font-weight: bold; letter-spacing: 5px; color: var(--primary);">----</span>
-              <span id="sync-status" class="status-msg" style="margin:0; text-align:left;">Iniciando servicio P2P...</span>
+          <!-- Sync -->
+          <div id="tab-content-sync" class="tab-content">
+            <h2 class="form-title">Sincronización Remota</h2>
+            <p class="sync-desc" style="color:var(--text-sec); margin-bottom: 20px;">
+              Escanea el código QR o introduce el PIN en la web remota.
+            </p>
+            <div class="sync-panel"
+              style="display: flex; gap: 40px; align-items: center; background: rgba(0,0,0,0.3); padding: 30px; border-radius: 12px;">
+              <div id="qrcode-container" class="qrcode-box" style="background:#fff; padding:15px; border-radius:8px;">
+              </div>
+              <div class="sync-info" style="display: flex; flex-direction: column; gap: 15px;">
+                <span class="sync-label" style="font-size: 1.2rem; color:var(--text-dim)">PIN de tu TV:</span>
+                <span id="sync-code" class="sync-code"
+                  style="font-size: 3rem; font-weight: bold; letter-spacing: 5px; color: var(--primary);">----</span>
+                <span id="sync-status" class="status-msg" style="margin:0; text-align:left;">Iniciando servicio
+                  P2P...</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Popup de progreso al añadir lista -->
+      <div id="setup-progress" class="setup-progress hidden">
+        <div class="sp-card">
+          <div class="sp-spinner">
+            <div class="spinner"></div>
+          </div>
+          <div class="sp-body">
+            <div id="sp-title" class="sp-title">Conectando…</div>
+            <div id="sp-sub" class="sp-sub"></div>
+            <div class="sp-bar-wrap">
+              <div class="sp-bar">
+                <div id="sp-fill" class="sp-fill"></div>
+              </div>
+              <span id="sp-pct" class="sp-pct">0%</span>
+            </div>
+            <ul class="sp-steps" id="sp-steps"></ul>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Popup de progreso al añadir lista -->
-    <div id="setup-progress" class="setup-progress hidden">
-      <div class="sp-card">
-        <div class="sp-spinner"><div class="spinner"></div></div>
-        <div class="sp-body">
-          <div id="sp-title" class="sp-title">Conectando…</div>
-          <div id="sp-sub"   class="sp-sub"></div>
-          <div class="sp-bar-wrap">
-            <div class="sp-bar"><div id="sp-fill" class="sp-fill"></div></div>
-            <span id="sp-pct" class="sp-pct">0%</span>
+    <!-- ══ CANALES ══ -->
+    <div id="view-channels" class="view">
+      <div class="channels-layout">
+        <aside class="sidebar">
+          <div class="sidebar-header"><span class="sidebar-logo">▶ IPTV</span></div>
+          <ul class="group-list" id="group-list"></ul>
+          <div class="sidebar-footer">
+            <button class="sidebar-btn" id="btn-open-setup">⚙️</button>
           </div>
-          <ul class="sp-steps" id="sp-steps"></ul>
+        </aside>
+
+        <main class="channel-panel">
+          <div class="panel-header" style="flex-direction: column; align-items: flex-start; gap: 15px;">
+            <button id="btn-open-search" class="header-search-btn focusable">🔍 Buscar Canal</button>
+            <div style="display: flex; align-items: baseline; gap: 15px;">
+              <h2 id="current-group-name">Todos los canales</h2>
+              <span id="channel-count" class="channel-count"></span>
+            </div>
+          </div>
+          <!-- VirtualList renders here -->
+          <div class="channel-grid" id="channel-grid"></div>
+        </main>
+
+        <div class="info-panel">
+          <div class="now-playing" style="display: flex; flex-direction: column; gap: 15px; flex: 1;">
+            <div class="channel-preview" id="preview-box"
+              style="position: relative; width: 100%; aspect-ratio: 16/9; background: transparent; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+              <img id="preview-logo" src="" alt=""
+                style="max-width: 60%; max-height: 60%; opacity: 0.3; object-fit: contain; z-index: -1;" />
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <span id="preview-name" class="preview-name">Selecciona un canal</span>
+              <div id="preview-epg" class="preview-epg"></div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <div id="search-bar" class="search-bar hidden">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" class="search-input" placeholder="Buscar canal..." />
+        <span class="search-count" id="search-count"></span>
+      </div>
+    </div>
+
+    <!-- ══ REPRODUCTOR ══ -->
+    <div id="view-player" class="view">
+      <!-- El video vive en #video-layer (fuera del flow de vistas) -->
+      <div id="player-overlay" class="player-overlay hidden">
+        <div class="overlay-top">
+          <div class="overlay-channel">
+            <img id="overlay-logo" src="" alt="" class="overlay-logo" />
+            <div class="overlay-channel-info">
+              <span id="overlay-ch-num" class="ch-num"></span>
+              <span id="overlay-ch-name" class="ch-name"></span>
+            </div>
+          </div>
+          <div class="overlay-time" id="overlay-time"></div>
+        </div>
+        <div class="overlay-bottom">
+          <div class="overlay-program">
+            <div class="program-current">
+              <span class="prog-label">AHORA</span>
+              <span id="prog-now-title" class="prog-title"></span>
+              <span id="prog-now-time" class="prog-time"></span>
+            </div>
+            <div class="program-next">
+              <span class="prog-label" style="color:var(--text-dim)">DESPUÉS</span>
+              <span id="prog-next-title" class="prog-title" style="color:var(--text-sec)"></span>
+              <span id="prog-next-time" class="prog-time"></span>
+            </div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+        </div>
+      </div>
+      <div id="buffer-spinner" class="buffer-spinner hidden">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <!-- ══ EPG ══ -->
+    <div id="view-epg" class="view">
+      <div class="epg-layout">
+        <div class="epg-header">
+          <h2 class="epg-title">📅 Guía de Programación</h2>
+          <div class="epg-time-nav">
+            <button class="epg-nav-btn" id="epg-prev">◀ -3h</button>
+            <span id="epg-current-time" class="epg-current-time"></span>
+            <button class="epg-nav-btn" id="epg-next">+3h ▶</button>
+          </div>
+        </div>
+        <div class="epg-container">
+          <div class="epg-timeline" id="epg-timeline"></div>
+          <div class="epg-grid-wrap">
+            <div class="epg-channels-col" id="epg-channels-col"></div>
+            <div class="epg-grid" id="epg-grid"></div>
+          </div>
+        </div>
+        <div class="epg-detail" id="epg-detail">
+          <p class="epg-detail-empty">Selecciona un programa para ver detalles</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast / Loading -->
+    <div id="toast" class="toast hidden"></div>
+    <div id="loading" class="loading-overlay hidden">
+      <div class="loading-content">
+        <div class="spinner large"></div>
+        <p id="loading-msg">Cargando...</p>
       </div>
     </div>
   </div>
 
-  <!-- ══ CANALES ══ -->
-  <div id="view-channels" class="view">
-    <div class="channels-layout">
-      <aside class="sidebar">
-        <div class="sidebar-header"><span class="sidebar-logo">▶ IPTV</span></div>
-        <ul class="group-list" id="group-list"></ul>
-        <div class="sidebar-footer">
-          <button class="sidebar-btn" id="btn-open-setup">⚙️</button>
-        </div>
-      </aside>
-
-      <main class="channel-panel">
-        <div class="panel-header" style="flex-direction: column; align-items: flex-start; gap: 15px;">
-          <button id="btn-open-search" class="header-search-btn focusable">🔍 Buscar Canal</button>
-          <div style="display: flex; align-items: baseline; gap: 15px;">
-            <h2 id="current-group-name">Todos los canales</h2>
-            <span id="channel-count" class="channel-count"></span>
-          </div>
-        </div>
-        <!-- VirtualList renders here -->
-        <div class="channel-grid" id="channel-grid"></div>
-      </main>
-
-      <div class="info-panel">
-        <div class="now-playing" style="display: flex; flex-direction: column; gap: 15px; flex: 1;">
-          <div class="channel-preview" id="preview-box" style="position: relative; width: 100%; aspect-ratio: 16/9; background: transparent; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-            <img id="preview-logo" src="" alt="" style="max-width: 60%; max-height: 60%; opacity: 0.3; object-fit: contain; z-index: -1;"/>
-          </div>
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            <span id="preview-name" class="preview-name">Selecciona un canal</span>
-            <div id="preview-epg" class="preview-epg"></div>
-          </div>
-        </div>
-        <div class="key-hints">
-          <span><span class="key">OK</span> Ver</span>
-          <span><span class="key">MANTENER OK</span> Favorito</span>
-          <span><span class="key">◀</span> Grupos</span>
-        </div>
-      </div>
-    </div>
-
-    <div id="search-bar" class="search-bar hidden">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="search-input" class="search-input" placeholder="Buscar canal..."/>
-      <span class="search-count" id="search-count"></span>
-    </div>
-  </div>
-
-  <!-- ══ REPRODUCTOR ══ -->
-  <div id="view-player" class="view">
-    <!-- El video vive en #video-layer (fuera del flow de vistas) -->
-    <div id="player-overlay" class="player-overlay hidden">
-      <div class="overlay-top">
-        <div class="overlay-channel">
-          <img id="overlay-logo" src="" alt="" class="overlay-logo"/>
-          <div class="overlay-channel-info">
-            <span id="overlay-ch-num" class="ch-num"></span>
-            <span id="overlay-ch-name" class="ch-name"></span>
-          </div>
-        </div>
-        <div class="overlay-time" id="overlay-time"></div>
-      </div>
-      <div class="overlay-bottom">
-        <div class="overlay-program">
-          <div class="program-current">
-            <span class="prog-label">AHORA</span>
-            <span id="prog-now-title" class="prog-title"></span>
-            <span id="prog-now-time"  class="prog-time"></span>
-          </div>
-          <div class="program-next">
-            <span class="prog-label" style="color:var(--text-dim)">DESPUÉS</span>
-            <span id="prog-next-title" class="prog-title" style="color:var(--text-sec)"></span>
-            <span id="prog-next-time"  class="prog-time"></span>
-          </div>
-        </div>
-        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-      </div>
-      <div class="overlay-hints">
-        <span><span class="key">▲▼</span> Canal</span>
-        <span><span class="key">🟢</span> EPG</span>
-        <span><span class="key">◀</span> Lista</span>
-        <span><span class="key">INFO</span> Ocultar</span>
-      </div>
-    </div>
-    <div id="buffer-spinner" class="buffer-spinner hidden"><div class="spinner"></div></div>
-  </div>
-
-  <!-- ══ EPG ══ -->
-  <div id="view-epg" class="view">
-    <div class="epg-layout">
-      <div class="epg-header">
-        <h2 class="epg-title">📅 Guía de Programación</h2>
-        <div class="epg-time-nav">
-          <button class="epg-nav-btn" id="epg-prev">◀ -3h</button>
-          <span id="epg-current-time" class="epg-current-time"></span>
-          <button class="epg-nav-btn" id="epg-next">+3h ▶</button>
-        </div>
-      </div>
-      <div class="epg-container">
-        <div class="epg-timeline" id="epg-timeline"></div>
-        <div class="epg-grid-wrap">
-          <div class="epg-channels-col" id="epg-channels-col"></div>
-          <div class="epg-grid" id="epg-grid"></div>
-        </div>
-      </div>
-      <div class="epg-detail" id="epg-detail">
-        <p class="epg-detail-empty">Selecciona un programa para ver detalles</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast / Loading -->
-  <div id="toast" class="toast hidden"></div>
-  <div id="loading" class="loading-overlay hidden">
-    <div class="loading-content">
-      <div class="spinner large"></div>
-      <p id="loading-msg">Cargando...</p>
-    </div>
-  </div>
-</div>
-
-<script src="js/lib/peerjs.min.js"></script>
-<script src="js/lib/qrcode.min.js"></script>
-<script src="js/sync.js"></script>
-<script src="js/storage.js"></script>
-<script src="js/keyHandler.js"></script>
-<script src="js/playlist.js"></script>
-<script src="js/epg.js"></script>
-<script src="js/player.js"></script>
-<script src="js/favorites.js"></script>
-<script src="js/search.js"></script>
-<script src="js/virtual-list.js"></script>
-<script src="js/setup-progress.js"></script>
-<script src="js/app.js"></script>
+  <script src="js/lib/peerjs.min.js"></script>
+  <script src="js/lib/qrcode.min.js"></script>
+  <script src="js/sync.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/keyHandler.js"></script>
+  <script src="js/playlist.js"></script>
+  <script src="js/epg.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/favorites.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/virtual-list.js"></script>
+  <script src="js/setup-progress.js"></script>
+  <script src="js/app.js"></script>
 </body>
+
 </html>
