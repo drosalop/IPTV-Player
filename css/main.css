@@ -516,33 +516,6 @@ html, body {
 .channel-num { font-size: 13px; color: var(--text-dim); }
 .fav-badge { position: absolute; top: 8px; right: 10px; color: var(--yellow); font-size: 14px; }
 
-/* Info panel */
-.info-panel {
-  width: var(--info-w);
-  background: var(--bg-card);
-  border-left: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  padding: 24px;
-  gap: 24px;
-}
-.channel-preview { display: flex; align-items: center; gap: 16px; }
-.preview-logo { width: 56px; height: 56px; object-fit: contain; border-radius: 10px; background: rgba(255,255,255,0.05); }
-.preview-name { font-size: 20px; font-weight: 600; }
-.preview-epg { padding: 16px; background: rgba(255,255,255,0.04); border-radius: 10px; font-size: 15px; line-height: 1.6; color: var(--text-sec); min-height: 80px; }
-
-.key-hints { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
-.key-hints span { font-size: 14px; color: var(--text-dim); display: flex; align-items: center; gap: 8px; }
-.key {
-  display: inline-block;
-  padding: 3px 8px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-sec);
-}
-
 /* Search bar */
 .search-bar {
   position: fixed;

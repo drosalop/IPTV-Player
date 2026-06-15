@@ -39,28 +39,23 @@ const Player = (() => {
   }
 
   // ── PLAY ─────────────────────────────────────────────
-  // isPreview = true  → video en miniatura (preview-box de la sidebar)
-  // isPreview = false → pantalla completa (view-player activa)
+  // isPreview parameter is no longer used, kept for backward compatibility but ignored
   function play(channel, isPreview = false) {
     // Si ya reproducimos este canal en el estado correcto, solo ajustamos display
     if (_current && _current.id === channel.id && (_state === 'PLAYING' || _state === 'BUFFERING')) {
-      if (!isPreview) {
-        _applyFullscreenRect();
-        _showOverlay(true);
-        _scheduleHideOverlay();
-        _updateOverlayInfo();
-      }
+      _applyFullscreenRect();
+      _showOverlay(true);
+      _scheduleHideOverlay();
+      _updateOverlayInfo();
       return;
     }
 
     _current = channel;
     _setState('BUFFERING');
 
-    if (!isPreview) {
-      _showOverlay(true);
-      _scheduleHideOverlay();
-      _updateOverlayInfo();
-    }
+    _showOverlay(true);
+    _scheduleHideOverlay();
+    _updateOverlayInfo();
 
     // Retardo mínimo para asegurar que el DOM/view ya está visible
     setTimeout(() => {
@@ -72,11 +67,7 @@ const Player = (() => {
         webapis.avplay.open(playUrl);
 
         // ── Posición del display rect ──
-        if (isPreview) {
-          _applyPreviewRect();
-        } else {
-          _applyFullscreenRect();
-        }
+        _applyFullscreenRect();
 
         // Ajuste de bitrate adaptativo según calidad del canal
         try {
@@ -109,8 +100,7 @@ const Player = (() => {
         // prepareAsync: aplica de nuevo el rect justo antes de play() para máxima fiabilidad
         webapis.avplay.prepareAsync(
           () => {
-            if (!isPreview) _applyFullscreenRect();
-            else            _applyPreviewRect();
+            _applyFullscreenRect();
             try { webapis.avplay.play(); } catch(e) { _onError(e); }
           },
           (err) => _onError(err)
@@ -134,24 +124,6 @@ const Player = (() => {
     }
     try { webapis.avplay.setDisplayRect(0, 0, w, h); } catch(e) {}
   }
-
-  function _applyPreviewRect() {
-    const box = document.getElementById('preview-box');
-    const vl  = document.getElementById('video-layer');
-    if (!box) return;
-    const r    = box.getBoundingClientRect();
-    const left = Math.round(r.left);
-    const top  = Math.round(r.top);
-    const w    = Math.round(r.width);
-    const h    = Math.round(r.height);
-    if (vl) {
-      vl.style.cssText = `position:absolute;left:${left}px;top:${top}px;width:${w}px;height:${h}px;z-index:50;pointer-events:none;overflow:hidden;`;
-    }
-    try { webapis.avplay.setDisplayRect(left, top, w, h); } catch(e) {}
-  }
-
-  // Alias público para app.js
-  function setPreviewMode() { _applyPreviewRect(); }
 
   // ── SAFE STOP ────────────────────────────────────────
   function _safeStop() {
@@ -241,9 +213,9 @@ const Player = (() => {
 
     KeyHandler.on('BACK', () => {
       if (_isActive()) {
-        // Volver a la lista de canales y poner el video en miniatura
+        // Volver a la lista de canales y parar el video
+        stop();
         App.showView('channels');
-        setPreviewMode();
         _showOverlay(false);
         return true;
       }
@@ -278,5 +250,5 @@ const Player = (() => {
     return `${f(s)} – ${f(e)}`;
   }
 
-  return { init, play, stop, toggleOverlay, getCurrent, getState, setPreviewMode };
+  return { init, play, stop, toggleOverlay, getCurrent, getState };
 })();

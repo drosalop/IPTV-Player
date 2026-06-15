@@ -484,12 +484,9 @@ const App = (() => {
       containerId:  'channel-grid',
       items,
       onSelect:     ch => _playChannel(ch),
-      onHover:      ch => _previewChannel(ch),
       getFavBadge:  id => favIds.has(id),
       getEpgNow:    epgId => EPG.getNow(epgId),
     });
-
-    if (items[0]) _previewChannel(items[0]);
   }
 
   function _moveActive(dir) {
@@ -526,9 +523,6 @@ const App = (() => {
       if (dir === 'up' && curIdx < 3) {
         // Mover el foco al botón de buscar
         KeyHandler.setFocus(searchBtn);
-        // Ocultar preview de epg actual
-        _setText('preview-name', 'Buscar Canales');
-        _setText('preview-epg', '');
       } else {
         VirtualList.move(dir);
         KeyHandler.setFocus(document.querySelector('.channel-card.focused'));
@@ -544,27 +538,7 @@ const App = (() => {
     });
   }
 
-  let _previewTimer = null;
-  function _previewChannel(ch) {
-    // Actualización rápida del nombre para feedback instantáneo
-    const name = document.getElementById('preview-name');
-    if (name) name.textContent = ch.name;
 
-    clearTimeout(_previewTimer);
-    _previewTimer = setTimeout(() => {
-      const logo = document.getElementById('preview-logo');
-      const epg  = document.getElementById('preview-epg');
-      if (logo) logo.src = ch.logo || '';
-      if (epg) {
-        const now = EPG.getNow(ch.epgId);
-        epg.textContent = now
-          ? `${now.title}\n${_fmt(now.start)} – ${_fmt(now.end)}`
-          : 'Sin datos EPG';
-      }
-      // Reproducir preview en ventana pequeña (modo preview)
-      Player.play(ch, true);
-    }, 500); // 500ms de debounce para scroll ultra rápido
-  }
 
   function _toggleFav() {
     const ch = VirtualList.getCurrentItem();
@@ -578,7 +552,6 @@ const App = (() => {
   function _playChannel(ch) {
     if (!ch) return;
     Storage.setLastChannel(ch.id);
-    clearTimeout(_previewTimer);
     showView('player');          // Activa view-player (fondo transparente)
     Player.play(ch, false);     // Reproduce en pantalla completa
   }
