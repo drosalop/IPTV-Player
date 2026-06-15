@@ -65,6 +65,13 @@ const App = (() => {
     if (name === 'channels') {
       _initChannelsKeys();
       _updateGroupCounts();
+      if (typeof VirtualList !== 'undefined' && _focusZone === 'channels') {
+        VirtualList.setFocused(VirtualList.getFocused());
+        setTimeout(() => {
+          const target = document.querySelector('.channel-card.focused') || document.querySelector('.channel-card');
+          if (target) KeyHandler.setFocus(target);
+        }, 50);
+      }
     }
     if (name === 'epg')      _renderEPGView();
     if (name === 'setup')    _initSetupView();
