@@ -91,13 +91,16 @@ const Player = (() => {
 
   // ── SAFE STOP ────────────────────────────────────────
   function _safeStop() {
-    try {
-      const vl = document.getElementById('video-layer');
-      if (vl) {
-        vl.style.width = '0px';
-        vl.style.height = '0px';
-      }
-      const s = webapis.avplay.getState();
+    App.showView('player');
+    const vl = document.getElementById('video-layer');
+    if (vl) {
+      vl.style.width  = '100%';
+      vl.style.height = '100%';
+    }
+    const errEl = document.getElementById('player-error');
+    if (errEl) errEl.classList.add('hidden');
+
+    try { const s = webapis.avplay.getState();
       if (s !== 'NONE' && s !== 'IDLE') webapis.avplay.stop();
       if (s !== 'NONE') webapis.avplay.close();
     } catch(e) {}
@@ -109,9 +112,17 @@ const Player = (() => {
 
   function _onError(err) {
     console.error('AVPlay error', err);
-    _setState('ERROR');
-    App.showToast('⚠ Error de reproducción. Reintentando…', 'error');
-    setTimeout(() => { if (_current) play(_current); }, 3000);
+    _handleError();
+  }
+
+  function _handleError() {
+    _safeStop();
+    const errEl = document.getElementById('player-error');
+    if (errEl) errEl.classList.remove('hidden');
+    setTimeout(() => { 
+      if (errEl) errEl.classList.add('hidden');
+      if (_isActive()) App.showView('channels');
+    }, 4000);
   }
 
   function _setState(s) {

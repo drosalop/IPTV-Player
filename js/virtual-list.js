@@ -113,10 +113,20 @@ const VirtualList = (() => {
     if (!_container) return;
     for (const key in _domCache) {
       const i = parseInt(key);
-      const oldEl = _domCache[key];
-      const newEl = _createCard(i);
-      _container.replaceChild(newEl, oldEl);
-      _domCache[i] = newEl;
+      const el = _domCache[key];
+      const ch = _items[i];
+      const isFav  = _getFavBadge ? _getFavBadge(ch.id) : false;
+      const now    = _getEpgNow   ? _getEpgNow(ch.epgId) : null;
+
+      el.innerHTML =
+        (isFav ? '<span class="fav-badge">♥</span>' : '') +
+        (ch.logo
+          ? `<img class="channel-logo" src="${_safeStr(ch.logo)}" loading="lazy" decoding="async" onerror="this.style.display='none'">`
+          : '') +
+        `<div class="channel-info">` +
+          `<div class="channel-name">${_safeStr(ch.name)}</div>` +
+          (now ? `<div class="channel-prog">${_safeStr(now.title)}</div>` : '') +
+        `</div>`;
     }
   }
 
