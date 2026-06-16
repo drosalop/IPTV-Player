@@ -59,18 +59,7 @@ const Player = (() => {
         // ── CONFIGURACIÓN SEGÚN MODO ──
         _applyDisplayRect(false); // Configurar coords nativas, pero con DOM oculto
 
-        try {
-          const name = (_current.name || '').toUpperCase();
-          const is8K = name.includes('8K');
-          const is4K = name.includes('4K') || name.includes('UHD') || name.includes('2160');
-          const isHD = name.includes('FHD') || name.includes('HD') || name.includes('1080');
-          const maxBr = is8K ? 80000000 : is4K ? 40000000 : isHD ? 20000000 : 10000000;
-          // Buffer adaptado: 2-3 segundos para evitar cortes
-          const bufMs = is8K ? 5000 : is4K ? 4000 : isHD ? 3000 : 3000;
-
-          webapis.avplay.setStreamingProperty('ADAPTIVE_INFO',
-            `STARTBITRATE=HIGHEST|MAXBITRATE=${maxBr}|BUFFERLENGTH=${Math.round(bufMs / 1000)}`);
-        } catch(e) {}
+          webapis.avplay.setStreamingProperty('ADAPTIVE_INFO', 'STARTBITRATE=HIGHEST|BUFFERLENGTH=2');
 
         webapis.avplay.setListener({
           onbufferingstart:    () => _onBufferingStart(),
