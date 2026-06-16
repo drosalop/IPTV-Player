@@ -54,7 +54,7 @@ const Player = (() => {
 
         webapis.avplay.open(playUrl);
         try { webapis.avplay.setDisplayMethod('PLAYER_DISPLAY_MODE_CUSTOM'); } catch(e) {}
-        try { webapis.avplay.setDisplayRect(0, 0, 1920, 1080); } catch(e) {}
+        try { webapis.avplay.setDisplayRect(0, 0, 1920, 1079); } catch(e) {}
 
         // ── CONFIGURACIÓN SEGÚN MODO ──
         _applyDisplayRect(false); // Configurar coords nativas, pero con DOM oculto
@@ -99,10 +99,10 @@ const Player = (() => {
     const vl = document.getElementById('video-layer');
     if (_mode === 'FULLSCREEN') {
       if (vl) { 
-        vl.style.left='0px'; vl.style.top='0px'; vl.style.width='1920px'; vl.style.height='1080px'; 
+        vl.style.left='0px'; vl.style.top='0px'; vl.style.width='1920px'; vl.style.height='1079px'; 
         vl.style.visibility = makeVisible ? 'visible' : 'hidden';
       }
-      try { webapis.avplay.setDisplayRect(0, 0, 1920, 1080); } catch(e) {}
+      try { webapis.avplay.setDisplayRect(0, 0, 1920, 1079); } catch(e) {}
     } else if (_mode === 'PIP') {
       const pipBox = document.getElementById('pip-box');
       if (vl) { 
