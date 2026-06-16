@@ -21,7 +21,7 @@
 .group-icon { font-size: 18px; }
 
 /* Scrollable channel grid smooth scroll */
-.channel-grid { scroll-behavior: smooth; }
+/* Eliminado: scroll-behavior smooth rompe el cálculo matemático del Virtual List en alta velocidad */
 
 /* EPG now-playing highlight */
 .epg-prog.now-prog .epg-prog-title { color: var(--green); }

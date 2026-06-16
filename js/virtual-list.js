@@ -17,7 +17,10 @@ const VirtualList = (() => {
   let _scrollTop   = 0;
   let _rafId       = null;
   let _domCache    = {};    // index → DOM element
+  let _pool        = [];    // recycled DOM elements
   let _colW        = 0;    // cacheado al inicializar, evita offsetWidth en cada tarjeta
+  let _vH          = 900;   // cacheado de offsetHeight
+  let _eventsBound = false;
 
   function init({ containerId, items, onSelect, getFavBadge }) {
     _container   = document.getElementById(containerId);
@@ -28,11 +31,29 @@ const VirtualList = (() => {
     _focusedIdx  = 0;
     _scrollTop   = 0;
     _domCache    = {};
-    // Cachear ancho de columna UNA sola vez (offsetWidth fuerza reflow)
+    _pool        = [];
+    // Cachear propiedades geométricas UNA sola vez (fuerzan reflow)
     _colW = (_container.offsetWidth - PADDING * 2 - ITEM_GAP * (COLS - 1)) / COLS;
+    _vH   = _container.offsetHeight || 900;
     _render();
 
-    _container.addEventListener('scroll', _onScroll, { passive: true });
+    if (!_eventsBound) {
+      _eventsBound = true;
+      _container.addEventListener('scroll', _onScroll, { passive: true });
+      _container.addEventListener('click', (e) => {
+        const card = e.target.closest('.channel-card');
+        if (!card) return;
+        const i = parseInt(card.dataset.idx);
+        setFocused(i);
+        if (_onSelect) _onSelect(_items[i]);
+      });
+      _container.addEventListener('mouseover', (e) => {
+        const card = e.target.closest('.channel-card');
+        if (!card) return;
+        const i = parseInt(card.dataset.idx);
+        if (i !== _focusedIdx) setFocused(i);
+      });
+    }
   }
 
   let _sentinel = null;
@@ -44,6 +65,7 @@ const VirtualList = (() => {
     _container.scrollTop = 0;
     _domCache   = {};
     _container.innerHTML = '';
+    _pool = [];
     _sentinel = null;
     _render();
   }
@@ -93,28 +115,37 @@ const VirtualList = (() => {
 
   function _renderVisible() {
     if (!_container) return;
-    const vH          = _container.offsetHeight || 900;
-    const scrollTop   = _container.scrollTop;
-    const startRow    = Math.max(0, Math.floor(scrollTop / (ITEM_H + ITEM_GAP)) - BUFFER_ROWS);
+    // Usamos las variables cacheadas _vH y _scrollTop para no forzar reflows
+    const startRow    = Math.max(0, Math.floor(_scrollTop / (ITEM_H + ITEM_GAP)) - BUFFER_ROWS);
     const endRow      = Math.min(Math.ceil(_items.length / COLS) - 1,
-                          Math.ceil((scrollTop + vH) / (ITEM_H + ITEM_GAP)) + BUFFER_ROWS);
+                          Math.ceil((_scrollTop + _vH) / (ITEM_H + ITEM_GAP)) + BUFFER_ROWS);
 
     const startIdx = startRow * COLS;
     const endIdx   = Math.min(_items.length - 1, (endRow + 1) * COLS - 1);
 
-    // Remove out-of-view cached elements
+    // Remove out-of-view cached elements and recycle them
     for (const key in _domCache) {
       const i = parseInt(key);
       if (i < startIdx || i > endIdx) {
-        _domCache[key]?.remove();
+        const el = _domCache[key];
+        el.remove();
+        _pool.push(el);
         delete _domCache[key];
       }
     }
 
-    // Create visible elements
+    // Create or reuse visible elements
     for (let i = startIdx; i <= endIdx; i++) {
       if (_domCache[i]) continue;
-      const el = _createCard(i);
+      let el;
+      if (_pool.length > 0) {
+        el = _pool.pop();
+      } else {
+        el = document.createElement('div');
+        // Pre-build structure ONLY once per new node
+        el.innerHTML = '<span class="fav-badge material-symbols-rounded" style="display:none">favorite</span><img class="channel-logo" style="display:none" loading="lazy" decoding="async" onerror="this.style.display=\'none\'"><div class="channel-info"><div class="channel-name"></div></div>';
+      }
+      _updateCard(el, i);
       _container.appendChild(el);
       _domCache[i] = el;
     }
@@ -128,42 +159,50 @@ const VirtualList = (() => {
       const ch = _items[i];
       const isFav  = _getFavBadge ? _getFavBadge(ch.id) : false;
 
-      el.innerHTML =
-        (isFav ? '<span class="fav-badge material-symbols-rounded">favorite</span>' : '') +
-        (ch.logo
-          ? `<img class="channel-logo" src="${_safeStr(ch.logo)}" loading="lazy" decoding="async" onerror="this.style.display='none'">`
-          : '') +
-        `<div class="channel-info">` +
-          `<div class="channel-name">${_safeStr(ch.name)}</div>` +
-        `</div>`;
+      const fav = el.querySelector('.fav-badge');
+      if (fav) fav.style.display = isFav ? '' : 'none';
+
+      const img = el.querySelector('.channel-logo');
+      if (img) {
+        if (ch.logo) { img.src = _safeStr(ch.logo); img.style.display = ''; }
+        else { img.removeAttribute('src'); img.style.display = 'none'; }
+      }
+
+      const name = el.querySelector('.channel-name');
+      if (name) name.textContent = ch.name || '';
     }
   }
 
-  function _createCard(i) {
+  function _updateCard(el, i) {
     const ch  = _items[i];
     const col = i % COLS;
     const row = Math.floor(i / COLS);
     const y   = PADDING + row * (ITEM_H + ITEM_GAP);
 
-    const el = document.createElement('div');
     el.className   = 'channel-card' + (i === _focusedIdx ? ' focused' : '');
     el.style.cssText = `position:absolute;top:${y}px;left:${PADDING + col*(_colW+ITEM_GAP)}px;width:${_colW}px;height:${ITEM_H}px;`;
     el.dataset.idx = i;
 
     const isFav  = _getFavBadge ? _getFavBadge(ch.id) : false;
 
-    // Use innerHTML once — fast
-    el.innerHTML =
-      (isFav ? '<span class="fav-badge material-symbols-rounded">favorite</span>' : '') +
-      (ch.logo
-        ? `<img class="channel-logo" src="${_safeStr(ch.logo)}" loading="lazy" decoding="async" onerror="this.style.display='none'">`
-        : '') +
-      `<div class="channel-info">` +
-        `<div class="channel-name">${_safeStr(ch.name)}</div>` +
-      `</div>`;
+    const fav = el.querySelector('.fav-badge');
+    if (fav) fav.style.display = isFav ? '' : 'none';
 
-    el.addEventListener('click', () => { setFocused(i); _onSelect && _onSelect(ch); });
-    el.addEventListener('mouseenter', () => { setFocused(i); });
+    const img = el.querySelector('.channel-logo');
+    if (img) {
+      if (ch.logo) {
+        // Solo actualizar src si cambia para evitar parpadeos de red
+        if (img.getAttribute('src') !== ch.logo) img.src = _safeStr(ch.logo);
+        img.style.display = '';
+      } else {
+        img.removeAttribute('src');
+        img.style.display = 'none';
+      }
+    }
+
+    const name = el.querySelector('.channel-name');
+    if (name) name.textContent = ch.name || '';
+
     return el;
   }
 
@@ -180,13 +219,19 @@ const VirtualList = (() => {
     if (!_container) return;
     const row = Math.floor(idx / COLS);
     const y   = row * (ITEM_H + ITEM_GAP) + PADDING;
-    const vH  = _container.offsetHeight || 900;
-    const cur = _container.scrollTop;
-    if (y < cur) _container.scrollTop = y - PADDING;
-    else if (y + ITEM_H > cur + vH) _container.scrollTop = y + ITEM_H - vH + PADDING;
+    // Usar la posición cacheada evita leer .scrollTop y forzar un reflow síncrono por cada pulsación
+    if (y < _scrollTop) {
+      _scrollTop = y - PADDING;
+      _container.scrollTop = _scrollTop;
+    }
+    else if (y + ITEM_H > _scrollTop + _vH) {
+      _scrollTop = y + ITEM_H - _vH + PADDING;
+      _container.scrollTop = _scrollTop;
+    }
   }
 
   function _onScroll() {
+    _scrollTop = _container.scrollTop; // Actualizar el caché real cuando ocurre el evento
     if (_rafId) return;
     _rafId = requestAnimationFrame(() => {
       _rafId = null;
