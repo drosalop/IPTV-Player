@@ -13,6 +13,7 @@ const Player = (() => {
   let _state           = 'IDLE'; // IDLE | BUFFERING | PLAYING | ERROR
   let _mode            = 'IDLE'; // IDLE | FULLSCREEN | PIP
   let _previewTimer    = null;   // delay para preview al navegar
+  let _wasPlayingOnHide = false;
 
   let _initialized = false;
   // ── INIT ─────────────────────────────────────────────
@@ -21,6 +22,22 @@ const Player = (() => {
     _initialized = true;
     _onChannelChange = onChannelChange;
     _bindKeys();
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (_mode !== 'IDLE' && _current) {
+          _wasPlayingOnHide = true;
+          _safeStop(); // Liberar recursos de hardware
+        }
+      } else {
+        if (_wasPlayingOnHide && _current) {
+          _wasPlayingOnHide = false;
+          // Restaurar reproducción en el modo en el que estaba
+          if (_mode === 'FULLSCREEN') play(_current);
+          else if (_mode === 'PIP') _startPip(_current);
+        }
+      }
+    });
   }
 
   // ── PLAY (pantalla completa) ──────────────────────────
