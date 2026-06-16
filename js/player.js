@@ -74,7 +74,7 @@ const Player = (() => {
         _applyDisplayRect();
 
         try {
-          const name = (channel.name || '').toUpperCase();
+          const name = (_current.name || '').toUpperCase();
           const is8K = name.includes('8K');
           const is4K = name.includes('4K') || name.includes('UHD') || name.includes('2160');
           const isHD = name.includes('FHD') || name.includes('HD') || name.includes('1080');
@@ -213,6 +213,10 @@ const Player = (() => {
         if (url.includes('|')) url = url.split('|')[0];
         webapis.avplay.open(url);
         _applyDisplayRect();
+        try {
+          webapis.avplay.setStreamingProperty('ADAPTIVE_INFO',
+            'STARTBITRATE=LOWEST|MAXBITRATE=3000000|BUFFERLENGTH=3');
+        } catch(e) {}
         webapis.avplay.setListener({
           onbufferingstart:    () => _setState('BUFFERING'),
           onbufferingcomplete: () => {
