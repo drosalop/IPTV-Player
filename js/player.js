@@ -56,6 +56,7 @@ const Player = (() => {
         if (playUrl.includes('|')) playUrl = playUrl.split('|')[0];
 
         webapis.avplay.open(playUrl);
+        try { webapis.avplay.setDisplayMethod('PLAYER_DISPLAY_MODE_CUSTOM'); } catch(e) {}
 
         // ── CONFIGURACIÓN SEGÚN MODO ──
         _applyDisplayRect(false); // Configurar coords nativas, pero con DOM oculto
@@ -114,6 +115,7 @@ const Player = (() => {
         vl.style.left='0px'; vl.style.top='0px'; vl.style.width='1920px'; vl.style.height='1080px'; 
         vl.style.visibility = makeVisible ? 'visible' : 'hidden';
       }
+      try { webapis.avplay.setDisplayRect(0, 0, 1920, 1080); } catch(e) {}
     } else if (_mode === 'PIP') {
       const pipBox = document.getElementById('pip-box');
       if (vl) { 
@@ -121,6 +123,7 @@ const Player = (() => {
         vl.style.visibility = makeVisible ? 'visible' : 'hidden';
       }
       if (pipBox) pipBox.style.background = makeVisible ? 'transparent' : '';
+      try { webapis.avplay.setDisplayRect(PIP_X, PIP_Y, PIP_W, PIP_H); } catch(e) {}
     }
   }
 
@@ -190,6 +193,8 @@ const Player = (() => {
         let url = ch.url;
         if (url.includes('|')) url = url.split('|')[0];
         webapis.avplay.open(url);
+        try { webapis.avplay.setDisplayMethod('PLAYER_DISPLAY_MODE_CUSTOM'); } catch(e) {}
+        
         _applyDisplayRect(false); // Configurar coords nativas ocultas
         
         try {
