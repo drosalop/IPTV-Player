@@ -585,7 +585,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.4);
+  background: transparent;
 }
 .buffer-spinner.hidden { display: none; }
 

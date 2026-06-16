@@ -543,6 +543,9 @@ const App = (() => {
     });
 
     KeyHandler.on('BACK', () => {
+      // Si el reproductor a pantalla completa está activo, dejamos que lo maneje player.js
+      if (document.getElementById('view-player')?.classList.contains('active')) return false;
+
       if (_isView('channels')) {
         if (Search.isOpen()) { Search.close(); return true; }
         if (_focusZone === 'exit') { _hideExitPopup(); return true; }
