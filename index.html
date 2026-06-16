@@ -34,6 +34,7 @@
             <button class="tab-btn active" data-tab="xtream"><span class="material-symbols-rounded">key</span> Xtream Codes</button>
             <button class="tab-btn" data-tab="saved"><span class="material-symbols-rounded">folder</span> Listas Guardadas</button>
             <button class="tab-btn" data-tab="sync"><span class="material-symbols-rounded">sync</span> Sincronizar Móvil</button>
+            <button class="tab-btn" data-tab="settings"><span class="material-symbols-rounded">settings</span> Ajustes</button>
           </div>
 
           <!-- Xtream -->
@@ -87,6 +88,19 @@
               </div>
             </div>
           </div>
+
+          <!-- Settings -->
+          <div id="tab-content-settings" class="tab-content">
+            <h2 class="form-title">Ajustes de la Aplicación</h2>
+            <div class="form-group" style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:16px 24px; border-radius:10px; margin-bottom:15px;">
+              <div>
+                <div style="font-size:18px; font-weight:600; margin-bottom:4px;">Vista previa de canal (PiP)</div>
+                <div style="font-size:14px; color:var(--text-sec);">Reproduce automáticamente el canal en miniatura al navegar por la lista</div>
+              </div>
+              <button class="btn-secondary" id="btn-toggle-pip" style="min-width:160px; padding:10px 20px; font-size:16px; border-radius:8px; cursor:pointer;">Activar</button>
+            </div>
+          </div>
+
         </div>
       </div>
 

@@ -195,7 +195,13 @@ const ViewChannels = (() => {
       KeyHandler.setFocus(document.querySelector('.channel-card.focused'), true);
       
       const focused = VirtualList.getCurrentItem();
-      if (focused && typeof Player !== 'undefined') Player.schedulePreview(focused);
+      if (focused && typeof Player !== 'undefined') {
+        if (Storage.getPipEnabled()) {
+          Player.schedulePreview(focused);
+        } else {
+          Player.cancelPreview();
+        }
+      }
     }
   }
 

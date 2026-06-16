@@ -18,7 +18,7 @@ const ViewSetup = (() => {
   }
 
   function _getSetupTabs() { return Array.from(document.querySelectorAll('#view-setup .tab-btn')); }
-  function _getSetupContent() { return Array.from(document.querySelectorAll('#view-setup .tab-content.active .tv-input, #view-setup .tab-content.active .btn-primary, #view-setup .tab-content.active .btn-secondary, #view-setup .tab-content.active .saved-item, #view-setup .tab-content.active .saved-item-edit, #view-setup .tab-content.active .saved-item-del')); }
+  function _getSetupContent() { return Array.from(document.querySelectorAll('#view-setup .tab-content.active .tv-input, #view-setup .tab-content.active .btn-primary, #view-setup .tab-content.active .btn-secondary, #view-setup .tab-content.active .saved-item, #view-setup .tab-content.active .saved-item-default, #view-setup .tab-content.active .saved-item-edit, #view-setup .tab-content.active .saved-item-del')); }
 
   function _updateSetupFocus() {
     if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
@@ -157,8 +157,17 @@ const ViewSetup = (() => {
     } catch { _setStatus('xt-status', '✗ No se puede conectar', 'error'); }
   }
 
+  function _updatePipBtnState() {
+    const btn = document.getElementById('btn-toggle-pip');
+    if (!btn) return;
+    const enabled = Storage.getPipEnabled();
+    btn.textContent = enabled ? 'Desactivar' : 'Activar';
+    btn.className = enabled ? 'btn-primary' : 'btn-secondary';
+  }
+
   function onShow() {
     _renderSavedLists();
+    _updatePipBtnState();
 
     const handleRemoteList = (list) => {
       list.id = list.id || _uid();
@@ -185,6 +194,15 @@ const ViewSetup = (() => {
         _updateSetupFocus();
       })
     );
+
+    document.getElementById('btn-toggle-pip')?.addEventListener('click', () => {
+      const current = Storage.getPipEnabled();
+      Storage.setPipEnabled(!current);
+      _updatePipBtnState();
+      if (typeof Router !== 'undefined') {
+        Router.showToast(Storage.getPipEnabled() ? 'Vista previa (PiP) activada' : 'Vista previa (PiP) desactivada', 'info');
+      }
+    });
 
     document.getElementById('btn-add-xtream')?.addEventListener('click', () => _addXtream());
     document.getElementById('btn-test-xtream')?.addEventListener('click', () => _testXtream());

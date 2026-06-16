@@ -123,13 +123,13 @@ const App = (() => {
     const lastChannelId = Storage.getLastChannel();
     if (lastChannelId) {
       const ch = channels.find(c => c.id === lastChannelId);
-      if (ch) {
+      if (ch && Storage.getPipEnabled()) {
         setTimeout(() => Player.schedulePreview(ch), 300);
       }
     } else {
       setTimeout(() => {
         const ch = VirtualList.getCurrentItem();
-        if (ch) Player.schedulePreview(ch);
+        if (ch && Storage.getPipEnabled()) Player.schedulePreview(ch);
       }, 300);
     }
 
