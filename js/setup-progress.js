@@ -15,6 +15,9 @@ const SetupProgress = (() => {
     _renderSteps();
 
     document.getElementById('setup-progress')?.classList.remove('hidden');
+    setTimeout(() => {
+      document.getElementById('btn-cancel-load')?.focus();
+    }, 50);
   }
 
   function hide() {
