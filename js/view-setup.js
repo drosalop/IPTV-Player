@@ -308,10 +308,15 @@ const ViewSetup = (() => {
 
     document.getElementById('btn-add-xtream')?.addEventListener('click', () => _addXtream());
     document.getElementById('btn-test-xtream')?.addEventListener('click', () => _testXtream());
+    document.getElementById('btn-cancel-load')?.addEventListener('click', () => {
+      if (typeof App !== 'undefined') App.cancelLoad();
+    });
 
     // D-pad navigation for setup
     KeyHandler.on('RIGHT', () => {
       if (typeof Router === 'undefined' || !Router.isView('setup')) return;
+      const progressEl = document.getElementById('setup-progress');
+      if (progressEl && !progressEl.classList.contains('hidden')) return true;
       if (_setupZone === 'exit') {
         _exitFocusIdx = 1;
         _updateExitFocus();
@@ -337,6 +342,8 @@ const ViewSetup = (() => {
 
     KeyHandler.on('LEFT', () => {
       if (typeof Router === 'undefined' || !Router.isView('setup')) return;
+      const progressEl = document.getElementById('setup-progress');
+      if (progressEl && !progressEl.classList.contains('hidden')) return true;
       if (_setupZone === 'exit') {
         _exitFocusIdx = 0;
         _updateExitFocus();
@@ -362,6 +369,8 @@ const ViewSetup = (() => {
 
     KeyHandler.on('DOWN', () => {
       if (typeof Router === 'undefined' || !Router.isView('setup')) return;
+      const progressEl = document.getElementById('setup-progress');
+      if (progressEl && !progressEl.classList.contains('hidden')) return true;
       if (_setupZone === 'exit') return true;
       if (_setupZone === 'tabs') {
         _setupZone = 'content';
@@ -385,6 +394,8 @@ const ViewSetup = (() => {
 
     KeyHandler.on('UP', () => {
       if (typeof Router === 'undefined' || !Router.isView('setup')) return;
+      const progressEl = document.getElementById('setup-progress');
+      if (progressEl && !progressEl.classList.contains('hidden')) return true;
       if (_setupZone === 'exit') return true;
       if (_setupZone === 'content') {
         const activeTab = document.querySelector('#view-setup .tab-btn.active')?.dataset.tab;
@@ -407,6 +418,11 @@ const ViewSetup = (() => {
 
     KeyHandler.on('ENTER', () => {
       if (typeof Router === 'undefined' || !Router.isView('setup')) return;
+      const progressEl = document.getElementById('setup-progress');
+      if (progressEl && !progressEl.classList.contains('hidden')) {
+        if (typeof App !== 'undefined') App.cancelLoad();
+        return true;
+      }
       if (_setupZone === 'exit') {
         if (_exitFocusIdx === 0) {
           _hideExitPopup();
@@ -432,6 +448,11 @@ const ViewSetup = (() => {
 
     KeyHandler.on('BACK', () => {
       if (typeof Router === 'undefined' || !Router.isView('setup')) return;
+      const progressEl = document.getElementById('setup-progress');
+      if (progressEl && !progressEl.classList.contains('hidden')) {
+        if (typeof App !== 'undefined') App.cancelLoad();
+        return true;
+      }
       if (_setupZone === 'exit') {
         _hideExitPopup();
         return true;

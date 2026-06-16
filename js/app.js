@@ -3,6 +3,7 @@
  */
 const App = (() => {
   let _clockTimer = null;
+  let _currentAbortController = null;
 
   function init() {
     KeyHandler.init();
@@ -66,6 +67,11 @@ const App = (() => {
   }
 
   async function loadList(list) {
+    if (_currentAbortController) {
+      _currentAbortController.abort();
+    }
+    _currentAbortController = new AbortController();
+
     Store.set('currentList', list);
     Storage.setLastList(list.id);
     if (typeof Favorites !== 'undefined') {
@@ -84,6 +90,7 @@ const App = (() => {
       SetupProgress.hide();
 
       await _afterLoad(list, true);
+      _currentAbortController = null;
       return;
     }
 
@@ -102,7 +109,7 @@ const App = (() => {
         const r = await Playlist.loadXtream(list.server, list.user, list.pass, pct => {
             SetupProgress.progress(Math.round(pct * 0.8));
             if (pct > 50) SetupProgress.step('parse');
-        });
+        }, _currentAbortController.signal);
         loadedChannels = r.channels;
         if (!list.epgUrl && r.epgUrl) list.epgUrl = r.epgUrl;
       } else {
@@ -110,7 +117,7 @@ const App = (() => {
         loadedChannels = await Playlist.loadM3U(list.url, pct => {
             SetupProgress.progress(Math.round(pct * 0.8));
             if (pct > 50) SetupProgress.step('parse');
-        });
+        }, _currentAbortController.signal);
       }
       SetupProgress.progress(100);
       Store.set('channels', loadedChannels);
@@ -120,8 +127,21 @@ const App = (() => {
       await _afterLoad(list);
     } catch(e) {
       SetupProgress.hide();
-      Router.showToast('Error cargando lista', 'error');
+      if (e.name === 'AbortError') {
+        Router.showToast('Carga cancelada', 'info');
+      } else {
+        Router.showToast('Error cargando lista', 'error');
+      }
       Router.showView('setup');
+    } finally {
+      _currentAbortController = null;
+    }
+  }
+
+  function cancelLoad() {
+    if (_currentAbortController) {
+      _currentAbortController.abort();
+      _currentAbortController = null;
     }
   }
 
@@ -203,7 +223,7 @@ const App = (() => {
     }
   }
 
-  return { init, loadList };
+  return { init, loadList, cancelLoad };
 })();
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -70,17 +70,17 @@ const Playlist = (() => {
   }
 
   // ── XTREAM CODES ─────────────────────────────────────
-  async function loadXtream(server, user, pass, onProgress) {
+  async function loadXtream(server, user, pass, onProgress, signal) {
     const base = `${server}/player_api.php?username=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}`;
 
     if (onProgress) onProgress(10);
-    const info = await _fetchJson(`${base}`, true); // auth: always fresh
+    const info = await _fetchJson(`${base}`, true, signal); // auth: always fresh
     if (!info || info.user_info?.auth === 0) throw new Error('Credenciales incorrectas');
 
     if (onProgress) onProgress(30);
     const [streams, cats] = await Promise.all([
-      _fetchJson(`${base}&action=get_live_streams`),    // browser-cached
-      _fetchJson(`${base}&action=get_live_categories`), // browser-cached
+      _fetchJson(`${base}&action=get_live_streams`, false, signal),    // browser-cached
+      _fetchJson(`${base}&action=get_live_categories`, false, signal), // browser-cached
     ]);
     if (onProgress) onProgress(80);
 
@@ -105,13 +105,14 @@ const Playlist = (() => {
     return { channels, serverInfo: info.server_info };
   }
 
-  async function _fetchJson(url, noCache = false) {
+  async function _fetchJson(url, noCache = false, signal) {
     try {
-      const res = await fetch(url, { cache: noCache ? 'no-store' : 'force-cache' });
+      const res = await fetch(url, { cache: noCache ? 'no-store' : 'force-cache', signal });
       if (!res.ok) return null;
       return await res.json();
     } catch { return null; }
   }
+
 
   // ── GROUPS (cached by country) ─────────────────────────
   let _groupCache = {};
