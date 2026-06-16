@@ -568,7 +568,7 @@ html, body {
 /* =====================================================
    PLAYER VIEW
    ===================================================== */
-#view-player { background: transparent; }
+#view-player { background: #000; }
 
 /* #av-player debe SIEMPRE rellenar su contenedor (video-layer).
    El agujero visible = tamaño del contenedor = lo que AVPlay debe mostrar. */
