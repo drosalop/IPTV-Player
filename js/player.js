@@ -201,15 +201,15 @@ const Player = (() => {
           },
           oncurrentplaytime: () => {},
           onevent:  () => {},
-          onerror:  () => _hidePip(),
+          onerror:  () => { _safeStop(); _hidePip(); },
           ondrmevent: () => {},
           onstreamcompleted: () => {},
         });
         webapis.avplay.prepareAsync(
           () => { try { webapis.avplay.play(); } catch(e) {} },
-          () => { _hidePip(); }
+          () => { _safeStop(); _hidePip(); }
         );
-      } catch(e) { _hidePip(); }
+      } catch(e) { _safeStop(); _hidePip(); }
     }, 50);
   }
 
