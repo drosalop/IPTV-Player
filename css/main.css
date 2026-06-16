@@ -15,6 +15,8 @@
   --accent-dim: rgba(108,99,255,0.15);
   --green:      #4ADE80;
   --yellow:     #FACC15;
+  --success:    var(--green);
+  --error:      var(--accent2);
   --text:       #FFFFFF;
   --text-sec:   #94A3B8;
   --text-dim:   #475569;
@@ -131,6 +133,10 @@ html, body {
   cursor: pointer;
   transition: all 0.2s;
   border-bottom: 3px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 .tab-btn.active, .tab-btn.focused {
   color: var(--accent);
