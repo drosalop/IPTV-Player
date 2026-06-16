@@ -35,6 +35,8 @@ const VirtualList = (() => {
     _container.addEventListener('scroll', _onScroll, { passive: true });
   }
 
+  let _sentinel = null;
+
   function update(items) {
     _items = items;
     _focusedIdx = 0;
@@ -42,6 +44,7 @@ const VirtualList = (() => {
     _container.scrollTop = 0;
     _domCache   = {};
     _container.innerHTML = '';
+    _sentinel = null;
     _render();
   }
 
@@ -73,17 +76,24 @@ const VirtualList = (() => {
     const rowCount    = Math.ceil(_items.length / COLS);
     const totalH      = rowCount * (ITEM_H + ITEM_GAP) + PADDING * 2;
 
-    // Sentinel div to maintain scroll height
+    // Sentinel div to maintain scroll height without breaking flexbox
     _container.style.position = 'relative';
-    _container.style.height   = totalH + 'px';
     _container.style.overflow = 'hidden auto';
+    _container.style.height   = ''; 
+
+    if (!_sentinel) {
+      _sentinel = document.createElement('div');
+      _sentinel.style.width = '1px';
+      _container.appendChild(_sentinel);
+    }
+    _sentinel.style.height = totalH + 'px';
 
     _renderVisible();
   }
 
   function _renderVisible() {
     if (!_container) return;
-    const vH          = _container.parentElement?.offsetHeight || 900;
+    const vH          = _container.offsetHeight || 900;
     const scrollTop   = _container.scrollTop;
     const startRow    = Math.max(0, Math.floor(scrollTop / (ITEM_H + ITEM_GAP)) - BUFFER_ROWS);
     const endRow      = Math.min(Math.ceil(_items.length / COLS) - 1,
@@ -170,7 +180,7 @@ const VirtualList = (() => {
     if (!_container) return;
     const row = Math.floor(idx / COLS);
     const y   = row * (ITEM_H + ITEM_GAP) + PADDING;
-    const vH  = _container.parentElement?.offsetHeight || 900;
+    const vH  = _container.offsetHeight || 900;
     const cur = _container.scrollTop;
     if (y < cur) _container.scrollTop = y - PADDING;
     else if (y + ITEM_H > cur + vH) _container.scrollTop = y + ITEM_H - vH + PADDING;
