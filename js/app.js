@@ -440,18 +440,34 @@ const App = (() => {
 
     KeyHandler.on('LEFT',  () => { 
       if (_isView('channels')) { 
+        if (document.activeElement && document.activeElement.tagName === 'INPUT') return false;
         if (_focusZone === 'exit') { _moveExit('left'); return true; }
         _moveActive('left'); return true; 
       } 
     });
     KeyHandler.on('RIGHT', () => { 
       if (_isView('channels')) { 
+        if (document.activeElement && document.activeElement.tagName === 'INPUT') return false;
         if (_focusZone === 'exit') { _moveExit('right'); return true; }
         _moveActive('right'); return true; 
       } 
     });
-    KeyHandler.on('UP',    () => { if (_isView('channels') && _focusZone !== 'exit') { _moveActive('up');    return true; } });
-    KeyHandler.on('DOWN',  () => { if (_isView('channels') && _focusZone !== 'exit') { _moveActive('down');  return true; } });
+    KeyHandler.on('UP',    () => { 
+      if (_isView('channels') && _focusZone !== 'exit') { 
+        if (document.activeElement && document.activeElement.tagName === 'INPUT') return false;
+        _moveActive('up'); return true; 
+      } 
+    });
+    KeyHandler.on('DOWN',  () => { 
+      if (_isView('channels') && _focusZone !== 'exit') { 
+        if (document.activeElement && document.activeElement.tagName === 'INPUT') {
+          document.activeElement.blur();
+          _setFocusZone('channels');
+          return true;
+        }
+        _moveActive('down'); return true; 
+      } 
+    });
 
     KeyHandler.on('ENTER', () => {
       if (!_isView('channels')) return;
@@ -473,6 +489,7 @@ const App = (() => {
       }
       
       if (_focusZone === 'channels') {
+        if (document.activeElement && document.activeElement.tagName === 'INPUT') return false;
         const ch = VirtualList.getCurrentItem();
         if (ch) _playChannel(ch);
         return true;
