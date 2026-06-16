@@ -405,6 +405,16 @@ const Player = (() => {
       }
     }
 
+    const clockEl = document.getElementById('osd-clock');
+    if (clockEl) {
+      const d = new Date();
+      const dateStr = d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }).replace(/\./g, '');
+      const timeStr = d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+      // Capitalizar la primera letra del día
+      const formattedDate = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+      clockEl.textContent = `${formattedDate} • ${timeStr}`;
+    }
+
     osd.classList.remove('hidden');
     clearTimeout(_osdTimer);
 
