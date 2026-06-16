@@ -122,7 +122,7 @@ const Player = (() => {
         vl.style.left=PIP_X+'px'; vl.style.top=PIP_Y+'px'; vl.style.width=PIP_W+'px'; vl.style.height=PIP_H+'px'; 
         vl.style.visibility = makeVisible ? 'visible' : 'hidden';
       }
-      if (pipBox) pipBox.style.background = makeVisible ? 'transparent' : '';
+      if (pipBox) pipBox.style.background = makeVisible ? 'transparent' : '#000';
       try { webapis.avplay.setDisplayRect(PIP_X, PIP_Y, PIP_W, PIP_H); } catch(e) {}
     }
   }
@@ -173,7 +173,7 @@ const Player = (() => {
     clearTimeout(_previewTimer);
     _safeStop();
     const pipBox = document.getElementById('pip-box');
-    if (pipBox) pipBox.style.background = ''; // Inmediatamente volver a negro
+    if (pipBox) pipBox.style.background = '#000'; // Inmediatamente volver a negro absoluto
   }
 
   function _startPip(ch) {
