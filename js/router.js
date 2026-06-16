@@ -13,8 +13,11 @@ const Router = (() => {
     if (name === 'channels' && typeof ViewChannels !== 'undefined') {
       ViewChannels.onShow();
     }
-    if (name === 'setup' && typeof ViewSetup !== 'undefined') {
-      ViewSetup.onShow();
+    if (name === 'setup') {
+      if (typeof Player !== 'undefined') Player.stop();
+      if (typeof ViewSetup !== 'undefined') {
+        ViewSetup.onShow();
+      }
     }
   }
 

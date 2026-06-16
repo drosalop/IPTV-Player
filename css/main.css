@@ -412,6 +412,12 @@ html, body {
   line-height: 1.5;
   padding-top: 4px; /* Un poco de respiro por arriba */
   padding-bottom: 4px;
+  display: inline-flex;
+  align-items: center;
+}
+.group-item > span:first-child .material-symbols-rounded {
+  margin-right: 10px;
+  vertical-align: middle;
 }
 .group-item .group-count {
   margin-left: auto;
@@ -428,8 +434,11 @@ html, body {
   gap: 8px;
 }
 .sidebar-btn {
-  flex: 1;
-  padding: 12px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: rgba(255,255,255,0.05);
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -437,6 +446,7 @@ html, body {
   color: var(--text);
   cursor: pointer;
   transition: all 0.15s;
+  box-sizing: border-box;
 }
 .sidebar-btn.focused { border-color: var(--accent); background: var(--accent-dim); box-shadow: var(--focus-ring); color: #fff; }
 

@@ -191,6 +191,7 @@ const Player = (() => {
 
   function _startPip(ch) {
     if (!ch || !ch.url) return;
+    if (typeof Router !== 'undefined' && !Router.isView('channels')) return;
     if (_mode === 'FULLSCREEN') return; // no interrumpir reproductor
     if (_current && _current.id === ch.id && _mode === 'PIP') return;
 
