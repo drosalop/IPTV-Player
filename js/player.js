@@ -306,7 +306,7 @@ const Player = (() => {
         _mode = 'PIP';
         App.showView('channels');
         _showPip(_current);
-        _applyDisplayRect(); // coords fijas → no necesita esperar al DOM
+        _applyDisplayRect(true); // coords fijas → no necesita esperar al DOM
         return true;
       }
     });
