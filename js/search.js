@@ -33,7 +33,7 @@ const Search = (() => {
     if (input) { input.removeEventListener('input', _onInput); input.value = ''; }
     KeyHandler.off('BACK', _onBack);
     // Restore full channel list
-    App.renderChannels();
+    ViewChannels.renderChannels();
   }
 
   const _onInput = (e) => {
@@ -43,7 +43,7 @@ const Search = (() => {
       const res = Playlist.search(_allChannels, q);
       const cnt = document.getElementById('search-count');
       if (cnt) cnt.textContent = q ? res.length + ' canales' : '';
-      App.renderChannels(res.length || q ? res : _allChannels);
+      ViewChannels.renderChannels(res.length || q ? res : _allChannels);
     }, 120); // 120ms debounce — fast but not every keystroke
   };
 

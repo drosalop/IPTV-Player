@@ -52,7 +52,7 @@ const Player = (() => {
     _setState('BUFFERING');
     _hidePip();
 
-    App.showView('player');
+    Router.showView('player');
     showOSD();
     const vl = document.getElementById('video-layer');
     if (vl) {
@@ -277,8 +277,8 @@ const Player = (() => {
 
     if (_isActive() && _current && _retryCount < 3) {
       _retryCount++;
-      if (typeof App !== 'undefined' && App.showToast) {
-        App.showToast(`Error de conexión. Reconectando (${_retryCount}/3)...`, 'error');
+      if (typeof Router !== 'undefined' && Router.showToast) {
+        Router.showToast(`Error de conexión. Reconectando (${_retryCount}/3)...`, 'error');
       }
       setTimeout(() => {
         if (_isActive() && _current) play(_current);
@@ -291,7 +291,7 @@ const Player = (() => {
     if (errEl) errEl.classList.remove('hidden');
     setTimeout(() => { 
       if (errEl) errEl.classList.add('hidden');
-      if (_isActive()) App.showView('channels');
+      if (_isActive()) Router.showView('channels');
     }, 4000);
   }
 
@@ -323,7 +323,7 @@ const Player = (() => {
     KeyHandler.on('BACK', () => {
       if (_isActive() && _current) {
         _mode = 'PIP';
-        App.showView('channels');
+        Router.showView('channels');
         _showPip(_current);
         _applyDisplayRect(); // coords fijas → no necesita esperar al DOM
         return true;
