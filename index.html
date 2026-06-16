@@ -34,6 +34,7 @@
             <button class="tab-btn active" data-tab="xtream"><span class="material-symbols-rounded">key</span> Xtream Codes</button>
             <button class="tab-btn" data-tab="saved"><span class="material-symbols-rounded">folder</span> Listas Guardadas</button>
             <button class="tab-btn" data-tab="sync"><span class="material-symbols-rounded">sync</span> Sincronizar Móvil</button>
+            <button class="tab-btn" data-tab="settings"><span class="material-symbols-rounded">settings</span> Ajustes</button>
           </div>
 
           <!-- Xtream -->
@@ -87,7 +88,19 @@
               </div>
             </div>
           </div>
+
+          <!-- Settings -->
+          <div id="tab-content-settings" class="tab-content">
+            <h2 class="form-title">Filtro de Países</h2>
+            <p class="sync-desc" style="color:var(--text-sec); margin-bottom: 20px;">
+              Selecciona qué países deseas mostrar en la barra horizontal de filtros del listado.
+            </p>
+            <div id="country-settings-list" class="country-settings-list">
+              <!-- Cargado dinámicamente -->
+            </div>
+          </div>
         </div>
+
       </div>
 
       <!-- Popup de progreso al añadir lista -->
@@ -125,6 +138,7 @@
               <button class="sidebar-btn" id="btn-open-setup"><span class="material-symbols-rounded">settings</span></button>
             </div>
           </div>
+          <div id="country-filter" class="country-filter"></div>
           <ul class="group-list" id="group-list"></ul>
         </aside>
 

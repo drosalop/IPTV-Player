@@ -1,7 +1,29 @@
-/**
- * view-setup.js — Controlador de la vista de Configuración / Inicio
- */
 const ViewSetup = (() => {
+  const COUNTRY_MAP = {
+    'ES':    { emoji: '🇪🇸', name: 'España' },
+    'US':    { emoji: '🇺🇸', name: 'USA' },
+    'UK':    { emoji: '🇬🇧', name: 'UK' },
+    'FR':    { emoji: '🇫🇷', name: 'Francia' },
+    'DE':    { emoji: '🇩🇪', name: 'Alemania' },
+    'IT':    { emoji: '🇮🇹', name: 'Italia' },
+    'PT':    { emoji: '🇵🇹', name: 'Portugal' },
+    'AR':    { emoji: '🇸🇦', name: 'Árabe' },
+    'MX':    { emoji: '🇲🇽', name: 'México' },
+    'CO':    { emoji: '🇨🇴', name: 'Colombia' },
+    'CL':    { emoji: '🇨🇱', name: 'Chile' },
+    'PE':    { emoji: '🇵🇪', name: 'Perú' },
+    'VE':    { emoji: '🇻🇪', name: 'Venezuela' },
+    'BR':    { emoji: '🇧🇷', name: 'Brasil' },
+    'LAT':   { emoji: '🌎', name: 'Latino' },
+    'TR':    { emoji: '🇹🇷', name: 'Turquía' },
+    'PL':    { emoji: '🇵🇱', name: 'Polonia' },
+    'RO':    { emoji: '🇷🇴', name: 'Rumania' },
+    'NL':    { emoji: '🇳🇱', name: 'Holanda' },
+    'BE':    { emoji: '🇧🇪', name: 'Bélgica' },
+    'CH':    { emoji: '🇨🇭', name: 'Suiza' },
+    'OTROS': { emoji: '🌐', name: 'Otros' }
+  };
+
   let _setupEventsBound = false;
   let _setupZone = 'tabs'; // 'tabs' | 'content' | 'exit'
   let _setupTabIdx = 0;
@@ -20,7 +42,8 @@ const ViewSetup = (() => {
   }
 
   function _getSetupTabs() { return Array.from(document.querySelectorAll('#view-setup .tab-btn')); }
-  function _getSetupContent() { return Array.from(document.querySelectorAll('#view-setup .tab-content.active .tv-input, #view-setup .tab-content.active .btn-primary, #view-setup .tab-content.active .btn-secondary, #view-setup .tab-content.active .saved-item, #view-setup .tab-content.active .saved-item-default, #view-setup .tab-content.active .saved-item-edit, #view-setup .tab-content.active .saved-item-del')); }
+  function _getSetupContent() { return Array.from(document.querySelectorAll('#view-setup .tab-content.active .tv-input, #view-setup .tab-content.active .btn-primary, #view-setup .tab-content.active .btn-secondary, #view-setup .tab-content.active .saved-item, #view-setup .tab-content.active .saved-item-default, #view-setup .tab-content.active .saved-item-edit, #view-setup .tab-content.active .saved-item-del, #view-setup .tab-content.active .country-setting-item')); }
+
 
   function _updateSetupFocus() {
     if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
@@ -182,8 +205,76 @@ const ViewSetup = (() => {
     } catch { _setStatus('xt-status', '✗ No se puede conectar', 'error'); }
   }
 
+  function _renderCountrySettings() {
+    const container = document.getElementById('country-settings-list');
+    if (!container) return;
+    
+    let codes = Store.get('allCountries') || [];
+    if (!codes.length) {
+      const channels = Store.get('channels') || [];
+      const codesSet = new Set();
+      for (const c of channels) {
+        if (c.countryCode) codesSet.add(c.countryCode);
+      }
+      codes = Array.from(codesSet).sort();
+      const idxOtros = codes.indexOf('OTROS');
+      if (idxOtros >= 0) {
+        codes.splice(idxOtros, 1);
+        codes.push('OTROS');
+      }
+      Store.set('allCountries', codes);
+    }
+
+    if (!codes.length) {
+      container.innerHTML = '<p class="empty-msg">Carga una lista de canales para ver los ajustes de país</p>';
+      return;
+    }
+
+    container.innerHTML = '';
+    const visibleCountries = Storage.getVisibleCountries();
+
+    codes.forEach(code => {
+      const isChecked = visibleCountries === null || visibleCountries.includes(code);
+      const info = COUNTRY_MAP[code] || { emoji: '🏳️', name: code };
+      
+      const item = document.createElement('div');
+      item.className = 'country-setting-item focusable' + (isChecked ? ' checked' : '');
+      item.innerHTML = `
+        <div class="checkbox-box">
+          <span class="material-symbols-rounded">check</span>
+        </div>
+        <span class="country-setting-label">${info.emoji} ${info.name}</span>
+      `;
+      
+      item.addEventListener('click', () => {
+        _toggleCountryVisibility(code);
+      });
+      
+      container.appendChild(item);
+    });
+  }
+
+  function _toggleCountryVisibility(code) {
+    let visibleCountries = Storage.getVisibleCountries();
+    let codes = Store.get('allCountries') || [];
+
+    if (visibleCountries === null) {
+      visibleCountries = codes.filter(c => c !== code);
+    } else {
+      if (visibleCountries.includes(code)) {
+        visibleCountries = visibleCountries.filter(c => c !== code);
+      } else {
+        visibleCountries.push(code);
+      }
+    }
+    
+    Storage.setVisibleCountries(visibleCountries);
+    _renderCountrySettings();
+  }
+
   function onShow() {
     _renderSavedLists();
+    _renderCountrySettings();
 
     const handleRemoteList = (list) => {
       list.id = list.id || _uid();
@@ -207,9 +298,13 @@ const ViewSetup = (() => {
         _setupZone = 'tabs';
         _setupTabIdx = idx;
         _switchTab(btn.dataset.tab);
+        if (btn.dataset.tab === 'settings') {
+          _renderCountrySettings();
+        }
         _updateSetupFocus();
       })
     );
+
 
     document.getElementById('btn-add-xtream')?.addEventListener('click', () => _addXtream());
     document.getElementById('btn-test-xtream')?.addEventListener('click', () => _testXtream());

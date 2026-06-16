@@ -2,23 +2,49 @@
  * view-channels.js — Controlador de la vista principal de Canales
  */
 const ViewChannels = (() => {
+  const COUNTRY_MAP = {
+    'ALL':   { emoji: '🌎', name: 'Todos' },
+    'ES':    { emoji: '🇪🇸', name: 'España' },
+    'US':    { emoji: '🇺🇸', name: 'USA' },
+    'UK':    { emoji: '🇬🇧', name: 'UK' },
+    'FR':    { emoji: '🇫🇷', name: 'Francia' },
+    'DE':    { emoji: '🇩🇪', name: 'Alemania' },
+    'IT':    { emoji: '🇮🇹', name: 'Italia' },
+    'PT':    { emoji: '🇵🇹', name: 'Portugal' },
+    'AR':    { emoji: '🇸🇦', name: 'Árabe' },
+    'MX':    { emoji: '🇲🇽', name: 'México' },
+    'CO':    { emoji: '🇨🇴', name: 'Colombia' },
+    'CL':    { emoji: '🇨🇱', name: 'Chile' },
+    'PE':    { emoji: '🇵🇪', name: 'Perú' },
+    'VE':    { emoji: '🇻🇪', name: 'Venezuela' },
+    'BR':    { emoji: '🇧🇷', name: 'Brasil' },
+    'LAT':   { emoji: '🌎', name: 'Latino' },
+    'TR':    { emoji: '🇹🇷', name: 'Turquía' },
+    'PL':    { emoji: '🇵🇱', name: 'Polonia' },
+    'RO':    { emoji: '🇷🇴', name: 'Rumania' },
+    'NL':    { emoji: '🇳🇱', name: 'Holanda' },
+    'BE':    { emoji: '🇧🇪', name: 'Bélgica' },
+    'CH':    { emoji: '🇨🇭', name: 'Suiza' },
+    'OTROS': { emoji: '🌐', name: 'Otros' }
+  };
+
   let _keysBound = false;
   let _sidebarFocusIdx = 2; // 0=search, 1=setup, 2+=groups
-  let _focusZone = 'channels'; // 'groups' | 'channels' | 'exit'
+  let _focusZone = 'channels'; // 'groups' | 'channels' | 'exit' | 'countries'
   let _exitFocusIdx = 0; // 0 = Cancel, 1 = Exit
   let _prevFocusZone = 'channels';
   let _sidebarFocusablesCache = null;
+  let _countryFocusIdx = 0;
 
   function onShow() {
     initKeys();
+    _updateCountriesList();
+    renderCountries();
     _updateGroupCounts();
-    if (typeof VirtualList !== 'undefined' && _focusZone === 'channels') {
-      VirtualList.setFocused(VirtualList.getFocused());
-      setTimeout(() => {
-        const target = document.querySelector('.channel-card.focused') || document.querySelector('.channel-card');
-        if (target) KeyHandler.setFocus(target);
-      }, 50);
-    }
+    
+    // Al entrar, el foco se sitúa en los países
+    _setFocusZone('countries');
+
     // Si el reproductor tiene canal en PiP, reafirmar su posición
     if (typeof Player !== 'undefined') {
       if (Player.getMode() === 'PIP' && Player.getCurrent()) {
@@ -27,19 +53,116 @@ const ViewChannels = (() => {
     }
   }
 
+
+  function _updateCountriesList() {
+    const channels = Store.get('channels') || [];
+    const codesSet = new Set();
+    for (const c of channels) {
+      if (c.countryCode) codesSet.add(c.countryCode);
+    }
+    const codes = Array.from(codesSet).sort();
+    const idxOtros = codes.indexOf('OTROS');
+    if (idxOtros >= 0) {
+      codes.splice(idxOtros, 1);
+      codes.push('OTROS');
+    }
+    
+    // Store complete list for the settings screen
+    Store.set('allCountries', [...codes]);
+
+    const visible = Storage.getVisibleCountries();
+    let filteredCodes = codes;
+    if (visible !== null) {
+      filteredCodes = codes.filter(code => visible.includes(code));
+    }
+    filteredCodes.unshift('ALL');
+    Store.set('countries', filteredCodes);
+
+    let currentCountry = Store.get('currentCountry') || 'ALL';
+    if (!filteredCodes.includes(currentCountry)) {
+      Store.set('currentCountry', 'ALL');
+      _countryFocusIdx = 0;
+      if (typeof Playlist !== 'undefined') {
+        Playlist.clearGroupCache();
+        Store.set('groups', Playlist.getGroups(channels, 'ALL'));
+      }
+      Store.set('currentGroup', '__all__');
+      Store.set('groupIdx', 0);
+      _sidebarFocusIdx = 2;
+    } else {
+      _countryFocusIdx = filteredCodes.indexOf(currentCountry);
+      if (_countryFocusIdx < 0) _countryFocusIdx = 0;
+    }
+  }
+
+
+  function renderCountries() {
+    const container = document.getElementById('country-filter');
+    if (!container) return;
+    container.innerHTML = '';
+    const codes = Store.get('countries') || ['ALL'];
+    const currentCountry = Store.get('currentCountry') || 'ALL';
+    
+    codes.forEach((code, i) => {
+      const info = COUNTRY_MAP[code] || { emoji: '🏳️', name: code };
+      const el = document.createElement('div');
+      el.className = 'country-item' + (i === _countryFocusIdx && _focusZone === 'countries' ? ' focused' : '') + (code === currentCountry ? ' active' : '');
+      el.innerHTML = `${info.emoji} ${info.name}`;
+      el.addEventListener('click', () => _selectCountry(code, i));
+      container.appendChild(el);
+    });
+  }
+
+  function _selectCountry(code, idx) {
+    _countryFocusIdx = idx;
+    Store.set('currentCountry', code);
+    
+    Playlist.clearGroupCache();
+    
+    const channels = Store.get('channels');
+    Store.set('groups', Playlist.getGroups(channels, code));
+    
+    Store.set('currentGroup', '__all__');
+    Store.set('groupIdx', 0);
+    _sidebarFocusIdx = 2; // Focus 'Todos los canales'
+    
+    _updateCountryClasses();
+    renderGroups();
+    renderChannels();
+  }
+
+  function _updateCountryClasses() {
+    const codes = Store.get('countries') || ['ALL'];
+    const currentCountry = Store.get('currentCountry') || 'ALL';
+    const els = document.querySelectorAll('.country-item');
+    els.forEach((el, i) => {
+      el.classList.toggle('focused', i === _countryFocusIdx && _focusZone === 'countries');
+      el.classList.toggle('active', codes[i] === currentCountry);
+      
+      if (i === _countryFocusIdx && _focusZone === 'countries') {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    });
+  }
+
   function renderGroups() {
     const list = document.getElementById('group-list');
     if (!list) return;
     list.innerHTML = '';
-    const groups = Store.get('groups');
+    
+    const currentCountry = Store.get('currentCountry') || 'ALL';
     const channels = Store.get('channels');
+    
+    const groups = Playlist.getGroups(channels, currentCountry);
+    Store.set('groups', groups);
+    
     const currentGroup = Store.get('currentGroup');
     const groupIdx = Store.get('groupIdx') || 0;
 
     groups.forEach((g, i) => {
-      const cnt = g.id === '__all__'  ? channels.length :
+      const cnt = g.id === '__all__'  ? Playlist.filterByGroup(channels, '__all__', null, currentCountry).length :
                   g.id === '__favs__' ? Favorites.getIds().length :
-                  channels.filter(c => c.group === g.id).length;
+                  channels.filter(c => c.group === g.id && (currentCountry === 'ALL' || c.countryCode === currentCountry)).length;
       const li = document.createElement('li');
       li.className = 'group-item' + (i === groupIdx ? ' focused' : '') + (g.id === currentGroup ? ' active' : '');
       li.dataset.idx = i;
@@ -62,18 +185,19 @@ const ViewChannels = (() => {
   }
 
   function _updateGroupCounts() {
-    let cache = Store.get('groupCountsCache');
     const channels = Store.get('channels');
     const groups = Store.get('groups');
+    const currentCountry = Store.get('currentCountry') || 'ALL';
 
-    if (!cache) {
-      cache = { '__all__': channels.length };
-      for (const ch of channels) {
+    const cache = { 
+      '__all__': Playlist.filterByGroup(channels, '__all__', null, currentCountry).length,
+      '__favs__': Favorites.getIds().length
+    };
+    for (const ch of channels) {
+      if (currentCountry === 'ALL' || ch.countryCode === currentCountry) {
         cache[ch.group] = (cache[ch.group] || 0) + 1;
       }
-      Store.set('groupCountsCache', cache);
     }
-    cache['__favs__'] = Favorites.getIds().length;
 
     const els = document.querySelectorAll('.group-item');
     if (!els.length || !groups.length) return;
@@ -112,12 +236,13 @@ const ViewChannels = (() => {
   function renderChannels(list) {
     const channels = Store.get('channels');
     const currentGroup = Store.get('currentGroup');
+    const currentCountry = Store.get('currentCountry') || 'ALL';
     const favIds = new Set(Favorites.getIds());
     let items;
     if (list) {
       items = list;
     } else {
-      items = Playlist.filterByGroup(channels, currentGroup, favIds);
+      items = Playlist.filterByGroup(channels, currentGroup, favIds, currentCountry);
     }
 
     const cnt = document.getElementById('channel-count');
@@ -150,6 +275,24 @@ const ViewChannels = (() => {
   }
 
   function _moveActive(dir) {
+    if (_focusZone === 'countries') {
+      const codes = Store.get('countries') || ['ALL'];
+      if (dir === 'up') {
+        _sidebarFocusIdx = 1; // Focus setup button
+        _setFocusZone('groups');
+      } else if (dir === 'down') {
+        _sidebarFocusIdx = 2; // Focus first category (Todos los canales)
+        _setFocusZone('groups');
+      } else if (dir === 'left') {
+        _countryFocusIdx = Math.max(0, _countryFocusIdx - 1);
+        _selectCountry(codes[_countryFocusIdx], _countryFocusIdx);
+      } else if (dir === 'right') {
+        _countryFocusIdx = Math.min(codes.length - 1, _countryFocusIdx + 1);
+        _selectCountry(codes[_countryFocusIdx], _countryFocusIdx);
+      }
+      return;
+    }
+
     if (_focusZone === 'groups') {
       const els = _getSidebarFocusables();
       if (!els.length) return;
@@ -166,13 +309,15 @@ const ViewChannels = (() => {
         }
       } else if (dir === 'up') {
         if (_sidebarFocusIdx === 2) {
-          _sidebarFocusIdx = 0;
+          _setFocusZone('countries');
+          return;
         } else if (_sidebarFocusIdx > 2) {
           _sidebarFocusIdx--;
         }
       } else if (dir === 'down') {
         if (_sidebarFocusIdx === 0 || _sidebarFocusIdx === 1) {
-          _sidebarFocusIdx = 2;
+          _setFocusZone('countries');
+          return;
         } else {
           _sidebarFocusIdx = Math.min(els.length - 1, _sidebarFocusIdx + 1);
         }
@@ -203,11 +348,16 @@ const ViewChannels = (() => {
     _focusZone = zone;
     if (zone === 'groups') {
       document.querySelector('.channel-card.focused')?.classList.remove('focused');
+      document.querySelectorAll('.country-item.focused').forEach(e => e.classList.remove('focused'));
       const els = _getSidebarFocusables();
       const next = els[_sidebarFocusIdx];
       if (next) next.classList.add('focused');
-    } else if (zone === 'channels') {
+    } else if (zone === 'countries') {
+      document.querySelector('.channel-card.focused')?.classList.remove('focused');
       document.querySelectorAll('.sidebar-btn.focused, .group-item.focused').forEach(e => e.classList.remove('focused'));
+      _updateCountryClasses();
+    } else if (zone === 'channels') {
+      document.querySelectorAll('.sidebar-btn.focused, .group-item.focused, .country-item.focused').forEach(e => e.classList.remove('focused'));
       if (typeof VirtualList !== 'undefined') {
         VirtualList.setFocused(VirtualList.getFocused());
       }
@@ -290,6 +440,17 @@ const ViewChannels = (() => {
     KeyHandler.on('ENTER', () => {
       if (!Router.isView('channels')) return;
       
+      if (_focusZone === 'countries') {
+        const codes = Store.get('countries') || ['ALL'];
+        const code = codes[_countryFocusIdx];
+        if (code) {
+          _selectCountry(code, _countryFocusIdx);
+          _sidebarFocusIdx = 2; // Enfoca el primer elemento de categorías ("Todos los canales")
+          _setFocusZone('groups');
+        }
+        return true;
+      }
+
       if (_focusZone === 'groups') {
         const els = _getSidebarFocusables();
         const el = els[_sidebarFocusIdx];
@@ -321,6 +482,7 @@ const ViewChannels = (() => {
         }
         return true;
       }
+
     });
 
     KeyHandler.on('LONG_OK', () => {

@@ -280,7 +280,61 @@ html, body {
 .saved-item-del.focused { background: rgba(255,101,132,0.1); box-shadow: 0 0 0 2px var(--accent2); }
 .empty-msg { color: var(--text-dim); font-size: 18px; text-align: center; padding: 40px; }
 
+/* Settings View / Country Visibility settings */
+.country-settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+.country-setting-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.country-setting-item.focused {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  box-shadow: var(--focus-ring);
+}
+.checkbox-box {
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--text-sec);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  background: transparent;
+  color: transparent;
+  flex-shrink: 0;
+}
+.checkbox-box .material-symbols-rounded {
+  font-size: 18px;
+  font-weight: bold;
+}
+.country-setting-item.checked .checkbox-box {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+.country-setting-label {
+  font-size: 18px;
+  font-weight: 500;
+  flex: 1;
+}
+
 /* ── Setup Progress Popup ── */
+
 .setup-progress {
   position: absolute;
   inset: 0;
@@ -681,3 +735,39 @@ html, body {
 .loading-overlay.hidden { display: none; }
 .loading-content { display: flex; flex-direction: column; align-items: center; gap: 20px; }
 .loading-content p { font-size: 20px; color: var(--text-sec); }
+
+/* ── COUNTRY FILTER ── */
+.country-filter {
+  display: flex;
+  gap: 10px;
+  padding: 12px 30px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+  scrollbar-width: none;
+}
+.country-filter::-webkit-scrollbar { display: none; }
+
+.country-item {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-sec);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.country-item.focused {
+  background: var(--bg-hover);
+  color: var(--text);
+  border-color: var(--accent);
+  transform: scale(1.05);
+}
+.country-item.active {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border-color: var(--accent);
+  font-weight: 600;
+}

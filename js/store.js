@@ -7,7 +7,9 @@ const Store = (() => {
     groups: [],
     currentGroup: '__all__',
     currentList: null,
-    groupCountsCache: null
+    groupCountsCache: null,
+    currentCountry: 'ALL',
+    countries: []
   };
 
   let listeners = {};

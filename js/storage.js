@@ -30,6 +30,9 @@ const Storage = (() => {
   const getLastChannel = ()   => get('last_channel', null);
   const setLastChannel = (id) => set('last_channel', id);
 
+  const getVisibleCountries = ()      => get('visible_countries', null);
+  const setVisibleCountries = (list)  => set('visible_countries', list);
+
   // ── Channel cache (TTL: 6 hours) ──────────────────────
   const CHANNEL_TTL = 6 * 3600 * 1000;
   const _cacheKey = (listId) => 'ch_cache_' + listId;
@@ -41,5 +44,6 @@ const Storage = (() => {
   const setChannelCache = (listId, data) => set(_cacheKey(listId), { ts: Date.now(), data });
   const clearChannelCache = (listId) => del(_cacheKey(listId));
 
-  return { get, set, del, getLists, saveLists, getFavs, saveFavs, getLastList, setLastList, getDefaultList, setDefaultList, getLastChannel, setLastChannel, getChannelCache, setChannelCache, clearChannelCache };
+  return { get, set, del, getLists, saveLists, getFavs, saveFavs, getLastList, setLastList, getDefaultList, setDefaultList, getLastChannel, setLastChannel, getChannelCache, setChannelCache, clearChannelCache, getVisibleCountries, setVisibleCountries };
 })();
+
