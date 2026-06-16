@@ -116,7 +116,7 @@ const ViewSetup = (() => {
     Storage.saveLists(Storage.getLists().filter(l => l.id !== id));
     Playlist.clearGroupCache();
     _renderSavedLists();
-    if (typeof Router !== 'undefined') Router.showToast('Lista eliminada', 'info');
+    if (typeof Router !== 'undefined') Router.showToast('Lista eliminada', 'success');
   }
 
   function _saveList(list) {
