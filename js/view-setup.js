@@ -54,7 +54,9 @@ const ViewSetup = (() => {
     if (!el) return;
     if (!lists.length) { el.innerHTML = '<p class="empty-msg">No hay listas guardadas</p>'; return; }
     el.innerHTML = '';
+    const defaultId = Storage.getDefaultList();
     lists.forEach(list => {
+      const isDefault = defaultId === list.id;
       const item = document.createElement('div');
       item.className = 'saved-item focusable';
       item.innerHTML = `
@@ -64,10 +66,12 @@ const ViewSetup = (() => {
           <div class="saved-item-type">${list.type === 'xtream' ? 'Xtream · ' + list.server : 'M3U8'}</div>
         </div>
         <div style="display:flex; gap:8px;">
+          <button class="saved-item-default" data-id="${list.id}"><span class="material-symbols-rounded" style="font-size: 20px; ${isDefault ? 'color: var(--yellow);' : ''}">${isDefault ? 'star' : 'star_border'}</span></button>
           <button class="saved-item-edit" data-id="${list.id}"><span class="material-symbols-rounded" style="font-size: 20px;">edit</span></button>
           <button class="saved-item-del" data-id="${list.id}"><span class="material-symbols-rounded" style="font-size: 20px;">delete</span></button>
         </div>`;
       
+      item.querySelector('.saved-item-default').addEventListener('click', e => { e.stopPropagation(); _setDefaultList(list.id); });
       item.querySelector('.saved-item-edit').addEventListener('click', e => { e.stopPropagation(); _editList(list); });
       item.querySelector('.saved-item-del').addEventListener('click', e => { e.stopPropagation(); _deleteList(list.id); });
       item.addEventListener('click', () => {
@@ -75,6 +79,18 @@ const ViewSetup = (() => {
       });
       el.appendChild(item);
     });
+  }
+
+  function _setDefaultList(id) {
+    const currentDefault = Storage.getDefaultList();
+    if (currentDefault === id) {
+      Storage.setDefaultList(null);
+      if (typeof Router !== 'undefined') Router.showToast('Sin lista por defecto', 'info');
+    } else {
+      Storage.setDefaultList(id);
+      if (typeof Router !== 'undefined') Router.showToast('Lista establecida por defecto', 'success');
+    }
+    _renderSavedLists();
   }
 
   function _editList(list) {
@@ -93,6 +109,9 @@ const ViewSetup = (() => {
   }
 
   function _deleteList(id) {
+    if (Storage.getDefaultList() === id) {
+      Storage.setDefaultList(null);
+    }
     Storage.clearChannelCache(id);
     Storage.saveLists(Storage.getLists().filter(l => l.id !== id));
     Playlist.clearGroupCache();

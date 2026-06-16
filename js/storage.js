@@ -25,6 +25,8 @@ const Storage = (() => {
 
   const getLastList = ()      => get('last_list', null);
   const setLastList = (id)    => set('last_list', id);
+  const getDefaultList = ()   => get('default_list', null);
+  const setDefaultList = (id) => set('default_list', id);
   const getLastChannel = ()   => get('last_channel', null);
   const setLastChannel = (id) => set('last_channel', id);
 
@@ -39,5 +41,5 @@ const Storage = (() => {
   const setChannelCache = (listId, data) => set(_cacheKey(listId), { ts: Date.now(), data });
   const clearChannelCache = (listId) => del(_cacheKey(listId));
 
-  return { get, set, del, getLists, saveLists, getFavs, saveFavs, getLastList, setLastList, getLastChannel, setLastChannel, getChannelCache, setChannelCache, clearChannelCache };
+  return { get, set, del, getLists, saveLists, getFavs, saveFavs, getLastList, setLastList, getDefaultList, setDefaultList, getLastChannel, setLastChannel, getChannelCache, setChannelCache, clearChannelCache };
 })();

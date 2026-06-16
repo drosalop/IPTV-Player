@@ -8,7 +8,8 @@ const App = (() => {
     KeyHandler.init();
     Favorites.init();
 
-    const lastListId = Storage.getLastList();
+    const defaultListId = Storage.getDefaultList();
+    const lastListId = defaultListId || Storage.getLastList();
     const lists = Storage.getLists();
     const list = lists.find(l => l.id === lastListId);
 
