@@ -8,13 +8,19 @@ const App = (() => {
     KeyHandler.init();
     Favorites.init();
 
-    const defaultListId = Storage.getDefaultList();
-    const activeListId = defaultListId || Storage.getLastList();
     const lists = Storage.getLists();
-    const list = lists.find(l => l.id === activeListId);
+    const defaultListId = Storage.getDefaultList();
+    
+    let listToLoad = null;
+    if (defaultListId) {
+      listToLoad = lists.find(l => l.id === defaultListId);
+    }
+    if (!listToLoad && lists.length === 1) {
+      listToLoad = lists[0];
+    }
 
-    if (list) {
-      loadList(list);
+    if (listToLoad) {
+      loadList(listToLoad);
       return;
     }
 
