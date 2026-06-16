@@ -58,7 +58,9 @@ const Player = (() => {
         webapis.avplay.open(playUrl);
 
         // ── CONFIGURACIÓN SEGÚN MODO ──
-        _applyDisplayRect();
+        // NOTA: NO llamamos a _applyDisplayRect() aquí para evitar que se dibuje
+        // un cuadro negro en la pantalla durante el buffering y active el Global Dimming.
+        // Se llama dentro de _onBufferingComplete().
 
         try {
           const name = (channel.name || '').toUpperCase();
@@ -190,7 +192,7 @@ const Player = (() => {
         let url = ch.url;
         if (url.includes('|')) url = url.split('|')[0];
         webapis.avplay.open(url);
-        _applyDisplayRect();
+        // NO llamar a _applyDisplayRect() aquí para evitar blackout de dimming.
         webapis.avplay.setListener({
           onbufferingstart:    () => _setState('BUFFERING'),
           onbufferingcomplete: () => {
