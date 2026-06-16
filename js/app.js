@@ -753,10 +753,8 @@ const App = (() => {
   function _playChannel(ch) {
     if (!ch) return;
 
-    if (typeof Search !== 'undefined' && Search.isOpen()) {
-      Search.close();
-    }
-
+    // Ya no cerramos Search.close() aquí para mantener los resultados filtrados al volver
+    
     Storage.setLastChannel(ch.id);
 
     // Si ya hay PiP con este canal: expandir sin recargar

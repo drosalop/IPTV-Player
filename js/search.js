@@ -48,7 +48,12 @@ const Search = (() => {
   };
 
   const _onBack = () => {
-    if (_isOpen) { close(); return true; }
+    // Solo procesar BACK si la vista de canales está activa
+    const viewChannels = document.getElementById('view-channels');
+    if (_isOpen && viewChannels && viewChannels.classList.contains('active')) { 
+      close(); 
+      return true; 
+    }
   };
 
   function isOpen() { return _isOpen; }
