@@ -112,12 +112,12 @@ const Player = (() => {
   function _applyDisplayRect() {
     const vl = document.getElementById('video-layer');
     if (_mode === 'FULLSCREEN') {
-      if (vl) { vl.style.left='0px'; vl.style.top='0px'; vl.style.width='1920px'; vl.style.height='1080px'; }
+      if (vl) { vl.style.left='0px'; vl.style.top='0px'; vl.style.width='1920px'; vl.style.height='1080px'; vl.style.visibility='visible'; }
       try { webapis.avplay.setDisplayMethod('PLAYER_DISPLAY_MODE_FULL_SCREEN'); } catch(e) {}
       try { webapis.avplay.setDisplayRect(0, 0, 1920, 1080); } catch(e) {}
     } else if (_mode === 'PIP') {
       // Posicionar video-layer exactamente en el área PiP
-      if (vl) { vl.style.left=PIP_X+'px'; vl.style.top=PIP_Y+'px'; vl.style.width=PIP_W+'px'; vl.style.height=PIP_H+'px'; }
+      if (vl) { vl.style.left=PIP_X+'px'; vl.style.top=PIP_Y+'px'; vl.style.width=PIP_W+'px'; vl.style.height=PIP_H+'px'; vl.style.visibility='visible'; }
       // FULL_SCREEN rellena el rect sin barras negras
       try { webapis.avplay.setDisplayMethod('PLAYER_DISPLAY_MODE_FULL_SCREEN'); } catch(e) {}
       try { webapis.avplay.setDisplayRect(PIP_X, PIP_Y, PIP_W, PIP_H); } catch(e) {}
@@ -224,6 +224,7 @@ const Player = (() => {
         vl.style.top    = '0px';
         vl.style.width  = '0px';
         vl.style.height = '0px';
+        vl.style.visibility = 'hidden';
       }
       const s = webapis.avplay.getState();
       if (s !== 'NONE' && s !== 'IDLE') webapis.avplay.stop();
@@ -233,7 +234,7 @@ const Player = (() => {
 
   // ── EVENTS ───────────────────────────────────────────
   function _onBufferingStart()    { _setState('BUFFERING'); }
-  function _onBufferingComplete() { _setState('PLAYING'); _retryCount = 0; }
+  function _onBufferingComplete() { _setState('PLAYING'); _retryCount = 0; _applyDisplayRect(); }
 
   function _onError(err) {
     console.error('AVPlay error', err);
