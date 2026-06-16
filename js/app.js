@@ -459,6 +459,7 @@ const App = (() => {
     _keysChannelsBound = true;
 
     KeyHandler.on('LEFT',  () => { 
+      if (document.getElementById('view-player')?.classList.contains('active')) return false;
       if (_isView('channels')) { 
         if (document.activeElement && document.activeElement.tagName === 'INPUT') return false;
         if (_focusZone === 'exit') { _moveExit('left'); return true; }
@@ -466,6 +467,7 @@ const App = (() => {
       } 
     });
     KeyHandler.on('RIGHT', () => { 
+      if (document.getElementById('view-player')?.classList.contains('active')) return false;
       if (_isView('channels')) { 
         if (document.activeElement && document.activeElement.tagName === 'INPUT') return false;
         if (_focusZone === 'exit') { _moveExit('right'); return true; }
@@ -473,12 +475,14 @@ const App = (() => {
       } 
     });
     KeyHandler.on('UP',    () => { 
+      if (document.getElementById('view-player')?.classList.contains('active')) return false;
       if (_isView('channels') && _focusZone !== 'exit') { 
         if (document.activeElement && document.activeElement.tagName === 'INPUT') return false;
         _moveActive('up'); return true; 
       } 
     });
     KeyHandler.on('DOWN',  () => { 
+      if (document.getElementById('view-player')?.classList.contains('active')) return false;
       if (_isView('channels') && _focusZone !== 'exit') { 
         if (document.activeElement && document.activeElement.tagName === 'INPUT') {
           document.activeElement.blur();
@@ -490,6 +494,7 @@ const App = (() => {
     });
 
     KeyHandler.on('ENTER', () => {
+      if (document.getElementById('view-player')?.classList.contains('active')) return false;
       if (!_isView('channels')) return;
       
       if (_focusZone === 'groups') {
@@ -526,6 +531,7 @@ const App = (() => {
     });
 
     KeyHandler.on('LONG_OK', () => {
+      if (document.getElementById('view-player')?.classList.contains('active')) return false;
       if (_isView('channels') && _focusZone === 'channels') {
         const ch = VirtualList.getCurrentItem();
         if (ch) { 
